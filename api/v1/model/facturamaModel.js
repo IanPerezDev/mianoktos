@@ -1,30 +1,22 @@
 const facturama = require("../../Facturama/Facturama/facturama.api")
 
 const listaClientes = () => facturama.Clients.List()
+
 const listaCfdis = (rfc) => facturama.Cfdi.List(rfc)
+
 const descargaCfdi = (idCfdi) => facturama.Cfdi.Download("pdf", "issued", idCfdi)
+
 const mandarCorreo = (idCfdi, email, type = "issued") => facturama.Cfdi.Send(`cfdiId=${idCfdi}&email=${email}&cfdiType=${type}`)
-/*
-TODO
-Extraer lista de facturas (necesitamos RFC)
 
-Mandar correo (ID-cfdi, correo, type_cfdi)
+const crearCfdi = (cfdi_data) => facturama.Cfdi.Create3(cfdi_data)
 
-Descargar (idCfdi)
-
-Crear cfdi 
-
-Crear Cliente
-
-Obtener cliente
-
-Obtener producto
-
-*/
+const crearCliente = (data) => facturama.Clients.Create(data)
 
 module.exports = {
   listaClientes,
   listaCfdis,
   descargaCfdi,
-  mandarCorreo
+  mandarCorreo,
+  crearCfdi,
+  crearCliente
 }

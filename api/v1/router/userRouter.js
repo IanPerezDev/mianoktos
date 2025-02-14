@@ -1,21 +1,28 @@
-const facturama = require("../../Facturama/Facturama/facturama.api")
 const controller = require("../controller/facturamaController")
 const router = require("express").Router()
 
-router.get("/", async (req, res) => {
-  try {
-    let response = await controller.mandarCorreoController(cfdi, email)
-    console.log(response)
-    res.json(response)
-  } catch (error) {
-    res.send(error)
-  }
-})
+// Obtener todos los clientes
+router.get("/clients", controller.obtenerClientes)
 
-let cfdi = "do1N7k-xebPXaL6mYBAJSA2"
-let email = "luis.castaneda@noktos.com"
+// Obtener un cliente por RFC
+router.get("/clients/rfc", controller.obtenerClientePorRfc)
 
-router.get("/send-email", async (req, res) => {
-})
+// Obtener un cliente por ID
+router.get("/clients/id", controller.obtenerClientePorId)
+
+// Obtener facturas de un cliente
+router.get("/invoices", controller.obtenerFacturasCliente)
+
+// Crear un nuevo cliente
+router.post("/clients", controller.crearCliente)
+
+// Crear un CFDI
+router.post("/cfdi", controller.crearCfdi)
+
+// Descargar facturas por CFDI ID
+router.post("/download", controller.descargarFacturas)
+
+// Enviar un correo con un CFDI
+router.post("/send-email", controller.mandarCorreo)
 
 module.exports = router

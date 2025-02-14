@@ -4,7 +4,6 @@ const v1Stripe = require("./api/v1/router/userStripe")
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
-
 const cors = require("cors")
 
 const corsOptions = {
@@ -12,16 +11,16 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
 };
+
+//Manejo de req
 app.use(cors(corsOptions));
 app.use(express.static('public'));
-
-//Manejo de respuestas
-app.use(express.json());  // Esto parsea cuerpos con Content-Type: application/json
-app.use(express.urlencoded({ extended: true }));  // Esto parsea datos con Content-Type: application/x-www-form-urlencoded
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 //Manejo de rutas
-app.use("/v1/factura", checkApiKey, v1Router) //Usamos middleware de autenticación
-app.use("/v1/stripe", checkApiKey, v1Stripe) //Usamos middleware de autenticación
+app.use("/v1/factura", checkApiKey, v1Router)
+app.use("/v1/stripe", checkApiKey, v1Stripe)
 app.get('/', (req, res) => res.json({ mensaje: 'Bienvenido a la API. Por favor, autentícate para acceder a más datos.' }));
 
 // Middleware para manejar errores globales
