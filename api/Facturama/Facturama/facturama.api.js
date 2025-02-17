@@ -6,6 +6,12 @@ let valuesFacturama = {
   url: "https://apisandbox.facturama.mx/",
 };
 
+// let valuesFacturama = {
+//   token: "YWRtaW5ub2t0b3M6TjBLTjBLQDIwMjVA",
+//   useragent: "adminnoktos",
+//   url: "https://api.facturama.mx/",
+// };
+
 let headers = {
   headers: {
     'User-Agent': valuesFacturama.useragent,
