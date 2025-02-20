@@ -1,16 +1,16 @@
 const axios = require('axios');
 
-let valuesFacturama = {
-  token: "cHJ1ZWJhbm9rdG9zOnBydWViYXNub2t0b3M=",
-  useragent: "pruebanoktos",
-  url: "https://apisandbox.facturama.mx/",
-};
-
 // let valuesFacturama = {
-//   token: "YWRtaW5ub2t0b3M6TjBLTjBLQDIwMjVA",
-//   useragent: "adminnoktos",
-//   url: "https://api.facturama.mx/",
+//   token: "cHJ1ZWJhbm9rdG9zOnBydWViYXNub2t0b3M=",
+//   useragent: "pruebanoktos",
+//   url: "https://apisandbox.facturama.mx/",
 // };
+
+let valuesFacturama = {
+  token: "YWRtaW5ub2t0b3M6TjBLTjBLQDIwMjVA",
+  useragent: "adminnoktos",
+  url: "https://api.facturama.mx/",
+};
 
 let headers = {
   headers: {
@@ -31,7 +31,7 @@ const facturama = () => {
       const response = await axios.get(`${settings.url}${path}/${id}`, headers);
       return response.data;
     } catch (error) {
-      console.error(`Error retrieving data from ${path}:`, error);
+      // console.error(`Error retrieving data from ${path}:`, error);
       throw error;
     }
   };
@@ -42,7 +42,7 @@ const facturama = () => {
       const response = await axios.get(`${settings.url}${path}`, headers);
       return response.data;
     } catch (error) {
-      console.error(`Error listing data from ${path}:`, error);
+      // console.error(`Error listing data from ${path}:`, error);
       throw error;
     }
   };
@@ -51,7 +51,7 @@ const facturama = () => {
       const response = await axios.get(`${settings.url}${path}?${param}`, headers);
       return response.data;
     } catch (error) {
-      console.error(`Error listing data from ${path}:`, error);
+      // console.error(`Error listing data from ${path}:`, error);
       throw error;
     }
   };
@@ -67,7 +67,7 @@ const facturama = () => {
       });
       return response.data;
     } catch (error) {
-      console.error(`Error posting data to ${path}:`, error);
+      // console.error(`Error posting data to ${path}:`, error);
       throw error;
     }
   };
@@ -81,7 +81,7 @@ const facturama = () => {
       });
       return response.data;
     } catch (error) {
-      console.error(`Error posting data to ${path}:`, error);
+      // console.error(`Error posting data to ${path}:`, error);
       throw error;
     }
   };
@@ -97,7 +97,7 @@ const facturama = () => {
       });
       return response.data;
     } catch (error) {
-      console.error(`Error putting data to ${path}:`, error);
+      // console.error(`Error putting data to ${path}:`, error);
       throw error;
     }
   };
@@ -108,7 +108,7 @@ const facturama = () => {
       const response = await axios.delete(`${settings.url}${path}/${param}`, headers);
       return response.data;
     } catch (error) {
-      console.error(`Error deleting data from ${path}:`, error);
+      // console.error(`Error deleting data from ${path}:`, error);
       throw error;
     }
   };

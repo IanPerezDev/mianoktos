@@ -6,6 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const cors = require("cors")
 
+//Control de CORS
 const corsOptions = {
   origin: ['http://localhost:5173', 'https://viajaconmia.com'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -25,11 +26,11 @@ app.get('/', (req, res) => res.json({ mensaje: 'Bienvenido a la API. Por favor, 
 
 // Middleware para manejar errores globales
 app.use((err, req, res, next) => {
-  console.error(err);
-  console.error(err.stack);
+  console.log(err.response.data)
   res.status(500).json({
     error: true,
     mensaje: err.message || 'Ocurrió un error interno en el servidor',
+    data: err.response.data
   });
 });
 app.listen(PORT, () => console.log(`Servidor escuchando en http://localhost:${PORT}`));

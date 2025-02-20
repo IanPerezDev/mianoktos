@@ -14,7 +14,7 @@ const obtenerClientePorRfc = async (req, res) => {
     res.status(200).json(filtrado)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+    res.status(500).json({ error: 'Internal Server Error', details: error.response.data })
   }
 }
 
@@ -32,7 +32,7 @@ const obtenerClientePorId = async (req, res) => {
     res.status(200).json(filtrado)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+    res.status(500).json({ error: 'Internal Server Error', details: error.response.data })
   }
 }
 
@@ -42,7 +42,7 @@ const obtenerClientes = async (req, res) => {
     res.status(200).json(listClients)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+    res.status(500).json({ error: 'Internal Server Error', details: error.response.data })
   }
 }
 
@@ -54,7 +54,7 @@ const obtenerFacturasCliente = async (req, res) => {
     res.status(200).json(listFacturas)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+    res.status(500).json({ error: 'Internal Server Error', details: error.response.data })
   }
 }
 
@@ -66,7 +66,7 @@ const descargarFacturas = async (req, res) => {
     res.status(200).json(dataDownload)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+    res.status(500).json({ error: 'Internal Server Error', details: error.response.data })
   }
 }
 
@@ -78,7 +78,7 @@ const mandarCorreo = async (req, res) => {
     res.status(200).json(response)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+    res.status(500).json({ error: 'Internal Server Error', details: error.response.data })
   }
 }
 
@@ -86,11 +86,10 @@ const crearCfdi = async (req, res) => {
   try {
     const { cfdi } = req.body
     const response = await model.crearCfdi(cfdi)  // Asegúrate de que esta función sea async o retorne una promesa
-
     res.status(200).json(response)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+    console.log(error.response.data)
+    res.status(500).json({ error: 'Internal Server Error', details: error.response.data })
   }
 }
 
@@ -102,7 +101,7 @@ const crearCliente = async (req, res) => {
     res.status(200).json(response)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+    res.status(500).json({ error: 'Internal Server Error', details: error.response.data })
   }
 }
 
