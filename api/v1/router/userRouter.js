@@ -25,4 +25,7 @@ router.post("/download", controller.descargarFacturas)
 // Enviar un correo con un CFDI
 router.post("/send-email", controller.mandarCorreo)
 
+//Cancelar un cfdi
+router.delete("/cfdi", controller.cancelarCfdi)
+
 module.exports = router

@@ -12,11 +12,14 @@ const crearCfdi = (cfdi_data) => facturama.Cfdi.Create3(cfdi_data)
 
 const crearCliente = (data) => facturama.Clients.Create(data)
 
+const cancelarCfdi = (idCfdi, motive = "03", type = "issued") => facturama.Cfdi.Cancel(`${idCfdi}?type=${type}&motive=${motive}`)
+
 module.exports = {
   listaClientes,
   listaCfdis,
   descargaCfdi,
   mandarCorreo,
   crearCfdi,
-  crearCliente
+  crearCliente,
+  cancelarCfdi
 }

@@ -105,6 +105,22 @@ const crearCliente = async (req, res) => {
   }
 }
 
+const cancelarCfdi = async (req, res) => {
+  try {
+    const { id_cfdi, motive, type } = req.body
+
+    if (!id_cfdi || !motive) throw new Error("Falta el id o el motivo de cancelación")
+
+    const response = await model.cancelarCfdi(id_cfdi, motive, type)
+
+    res.status(200).json(response)
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error', details: error.response.data })
+  }
+}
+
 module.exports = {
   obtenerClientes,
   crearCfdi,
@@ -113,5 +129,6 @@ module.exports = {
   mandarCorreo,
   obtenerClientePorId,
   obtenerClientePorRfc,
-  obtenerFacturasCliente
+  obtenerFacturasCliente,
+  cancelarCfdi
 }

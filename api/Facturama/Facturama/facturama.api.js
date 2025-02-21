@@ -1,15 +1,10 @@
 const axios = require('axios');
-
-// let valuesFacturama = {
-//   token: "cHJ1ZWJhbm9rdG9zOnBydWViYXNub2t0b3M=",
-//   useragent: "pruebanoktos",
-//   url: "https://apisandbox.facturama.mx/",
-// };
+// const { valuesFacturama } = require("../../../config/auth")
 
 let valuesFacturama = {
-  token: "YWRtaW5ub2t0b3M6TjBLTjBLQDIwMjVA",
-  useragent: "adminnoktos",
-  url: "https://api.facturama.mx/",
+  token: "cHJ1ZWJhbm9rdG9zOnBydWViYXNub2t0b3M=",
+  useragent: "pruebanoktos",
+  url: "https://apisandbox.facturama.mx/",
 };
 
 let headers = {
