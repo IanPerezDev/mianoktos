@@ -2,12 +2,12 @@ const { checkApiKey } = require("./middleware/auth")
 const v1Router = require("./api/v1/router/general")
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const cors = require("cors")
 
 //Control de CORS
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://viajaconmia.com'],
+  origin: ['http://localhost:5173', 'https://viajaconmia.com', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
 };
