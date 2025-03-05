@@ -1,4 +1,3 @@
-const { validateParams } = require("../helpers/params")
 
 const create = async (req, res) => {
   const requiredParamsToCreate = []
