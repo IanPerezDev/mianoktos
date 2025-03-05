@@ -1,4 +1,4 @@
-let model = require("../model/solicitudMia")
+let model = require("../model/solicitud")
 const { validateParams } = require("../helpers/params")
 
 const requiredParamsToCreate = ['confirmation_code', 'id_viajero', 'hotel_name', 'check_in', 'check_out', 'room_type', 'total_price', 'status']
@@ -10,10 +10,7 @@ const create = async (req, res) => {
       return res.status(400).json({ error: 'Missing required parameters', missingParams })
     }
 
-    let response = await model.createSolicitud(req.body)
-
-    //se crea ticket
-    // let ticket = await model.createTicket(response.insertId)
+    let response = await model.createSolicitudYTicket(req.body)
 
     res.status(201).json({ message: "Solicitud created successfully", data: response })
   } catch (error) {

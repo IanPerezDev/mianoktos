@@ -1,4 +1,4 @@
-const { API_STRIPE } = require("../../../config/auth")
+const { API_STRIPE } = require("../../../../config/auth")
 const stripe = require('stripe')(API_STRIPE);
 const router = require("express").Router()
 
