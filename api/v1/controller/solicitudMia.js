@@ -9,16 +9,17 @@ const create = async (req, res) => {
     if (missingParams.length > 0) {
       return res.status(400).json({ error: 'Missing required parameters', missingParams })
     }
-
-    let response = await model.createSolicitud(req.body)
+    console.log("hola");
+    //let response = await model.createSolicitud(req.body)
 
     //se crea ticket
-    // let ticket = await model.createTicket(response.insertId)
+    let ticket = await model.createTicket(req.body);
+    console.log("proceso finalizado");
 
-    res.status(201).json({ message: "Solicitud created successfully", data: response })
+    res.status(201).json({ message: "Solicitud created successfully" })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error })
+    res.status(500).json({ error: 'Internal Server Error', details: error.message })
   }
 }
 
