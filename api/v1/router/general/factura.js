@@ -1,4 +1,4 @@
-const controller = require("../controller/facturamaController")
+const controller = require("../../controller/facturamaController")
 const router = require("express").Router()
 
 // Obtener todos los clientes

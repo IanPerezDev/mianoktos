@@ -1,7 +1,5 @@
 const { checkApiKey } = require("./middleware/auth")
-const v1Router = require("./api/v1/router/userRouter")
-const v1Stripe = require("./api/v1/router/userStripe")
-const v1userMia = require("./api/v1/router/solicitudMia")
+const v1Router = require("./api/v1/router/general")
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,9 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 //Manejo de rutas
-app.use("/v1/factura", checkApiKey, v1Router)
-app.use("/v1/stripe", checkApiKey, v1Stripe)
-app.use("/v1/solicitud", checkApiKey, v1userMia)
+app.use("/v1", checkApiKey, v1Router)
 app.get('/', (req, res) => res.json({ mensaje: 'Bienvenido a la API. Por favor, autentícate para acceder a más datos.' }));
 
 // Middleware para manejar errores globales
