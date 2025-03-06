@@ -17,9 +17,18 @@ app.use(cors(corsOptions));
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store'); // Evita el almacenamiento en caché
+  res.set('Pragma', 'no-cache');        // Para compatibilidad con HTTP/1.0
+  res.set('Expires', '0');              // Establece que la fecha de expiración ya pasó
+  next(); // Pasa al siguiente middleware o ruta
+});
 
 //Manejo de rutas
-app.use("/v1", checkApiKey, v1Router)
+app.use("/v1", checkApiKey, (req, res, next) => {
+  res.setHeader("Cache-Control", "no-cache");
+  next();
+}, v1Router)
 app.get('/', (req, res) => res.json({ mensaje: 'Bienvenido a la API. Por favor, autentícate para acceder a más datos.' }));
 
 // Middleware para manejar errores globales
