@@ -8,8 +8,11 @@ const valuesFacturama = {
   url: process.env.URL_FACTURAMA
 };
 
+const API_STRIPE_TEST = process.env.API_STRIPE_TEST
+
 module.exports = {
   API_KEY,
   API_STRIPE,
+  API_STRIPE_TEST,
   valuesFacturama
 }
