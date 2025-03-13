@@ -25,8 +25,8 @@ async function executeTransaction(query, params, callback) {
     await connection.beginTransaction();
     const [results] = await connection.execute(query, params);
     await callback(results, connection);
-    await connection.commit();
-    return results;
+    const resultsCallback = await connection.commit();
+    return { results, resultsCallback };
   } catch (error) {
     await connection.rollback();
     throw error;
