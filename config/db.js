@@ -3,7 +3,7 @@ const mysql = require('mysql2/promise');
 const pool = mysql.createPool({
   host: '127.0.0.1',
   user: 'root',
-  password: 'admin',
+  password: 'juanin+3',
   database: 'mia',
   waitForConnections: true,
   connectionLimit: 15,
@@ -24,8 +24,8 @@ async function executeTransaction(query, params, callback) {
   try {
     await connection.beginTransaction();
     const [results] = await connection.execute(query, params);
-    await callback(results, connection);
-    const resultsCallback = await connection.commit();
+    const resultsCallback = await callback(results, connection);
+    await connection.commit();
     return { results, resultsCallback };
   } catch (error) {
     await connection.rollback();
