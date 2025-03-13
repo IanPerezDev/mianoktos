@@ -1,21 +1,24 @@
-const { executeTransaction, executeQuery } = require("../../../config/db");
+const { executeQuery, executeTransaction } = require("../../../config/db");
+const { v4: uuidv4 } = require("uuid");
 
-const createEmpresa = async() => {
+const createEmpresa = async (empresa) => {
   try {
-    let query = `INSERT INTO empresas (id_agente, primer_nombre, segundo_nombre, apellido_paterno, apellido_materno, correo, telefono) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    let params = [data.id, data.name, data.secondName, data.lastname1, data.lastname2, data.email, data.phone];
-    let response = await executeQuery(query, params);
-    console.log(response);
+    const id_empresa = `emp-${uuidv4()}`
 
-    return response;
+    const query = "INSERT INTO  empresas (id_empresa, razon_social, rfc, nombre_comercial, direccion, direccion_fiscal, codigo_postal_fiscal, regimen_fiscal) VALUES (?,?,?,?,?,?,?,?);"
+    let params = [id_empresa, empresa.razon_social, empresa.rfc, empresa.nombre_comercial, empresa.direccion, empresa.direccion_fiscal, empresa.codigo_postal_fiscal, empresa.regimen_fiscal]
+    const response = await executeQuery(query, params)
+
+    return response
   } catch (error) {
     throw error
   }
 }
-const getEmpresas = () => {
+const getEmpresas = async () => {
   try {
-    //Aqui se escribe el codigo
-    return { message: "Estoy en obteniendo empresa" }
+    const query = "SELECT * FROM empresas"
+    const response = await executeQuery(query)
+    return response
   } catch (error) {
     throw error
   }

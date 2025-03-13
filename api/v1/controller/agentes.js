@@ -18,7 +18,7 @@ const read = async (req, res) => {
 
     const agentes = await model.getAgentes()
 
-    res.status(200).json(agentes)
+    res.status(200).json({ data: agentes })
   } catch (error) {
     console.log(error)
     res.status(500).json({ error: 'Error en el servidor', details: error })
