@@ -4,7 +4,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: 'admin',
-  database: 'noktos_prueba',
+  database: 'mia',
   waitForConnections: true,
   connectionLimit: 15,
 });

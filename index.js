@@ -9,7 +9,7 @@ const cors = require("cors")
 const corsOptions = {
   origin: ['http://localhost:5173', 'https://viajaconmia.com', 'http://localhost:3000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', "cache-control"],
 };
 
 //Manejo de req
