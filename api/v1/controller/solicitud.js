@@ -6,7 +6,7 @@ const create = async (req, res) => {
     res.status(201).json({ message: "Solicitud created successfully", data: response })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error })
+    res.status(500).json({ error: 'Internal Server Error', details: error.message })
   }
 }
 
