@@ -27,9 +27,10 @@ const getAgente = async (id_agente) => {
 
 const getAgenteEmpresa = async(id_agente) => {
   try {
-    const query = "SELECT * FROM viajeros_con_empresas_con_agentes WHERE id_agente = ?";
+    const query = "SELECT * FROM empresas_con_agentes WHERE id_agente = ?";
     const params = [id_agente];
     const response = await executeQuery(query, params);
+    console.log("hola");
     console.log(response);
     return response;
   } catch (error) {
