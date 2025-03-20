@@ -104,49 +104,56 @@ let viajero = {
 }
 
 
-let servicio = {
-  total: 0, //Suma de todas las bookings
-  impuestos: [ //Total de los impuestos reunidos
-    {
-      name: "iva",
-      total: 0
-    }
-  ],
+let respuesta = {
+  total: 0, //Suma de todas las noches
+  impuestos: 0, //Suma total de los impuestos
   is_credito: false, // por si lo pago con credito
   fecha_limite_pago: "2025-11-12", //Fecha limite de pago mas proxima
-  bookings: [ //Aqui van por separadas si es que llegan a ser varias
-    {
-      check_in: "2025-11-10",
-      check_out: "2025-11-10",
-      total: 0,
-      nombre_hotel: "",
-      cadena_hotel: "",
-      tipo_cuarto: "",
-      numero_habitacion: "",
-      noches: "",
-      is_rembolsable: "",
-      monto_penalizacion: "",
-      conciliado: false,
-      credito: false,
-      codigo_reservacion_hotel: "",
-      estado: "pending",
-      costo_total: 0,
-      costo_impuestos: 0,
-      costo_subtotal: 0,
-      fecha_limite_pago: "2025-11-21",
-      fecha_limite_cancelacion: "2025-11-21",
-      impuestos: [
-        {
-          id_impuesto: 0,
-          name: "iva"
-        }
-      ],
-      viajeros: [
-        {
-          id_viajero: 0,
-          is_principal: true
-        }
-      ]
-    }
-  ]
+  booking: {
+    check_in: "2025-11-10",
+    check_out: "2025-11-10",
+    total: 0, //Total de noches
+    nombre_hotel: "", //nombre del hotel
+    cadena_hotel: "", //Por ahora se queda vacia
+    tipo_cuarto: "",
+    numero_habitacion: "", //Falta agregar un campo para esto
+    noches: "", //Total de noches
+    is_rembolsable: false, //Falta agregar un checkbox, pero por ahora sera false
+    monto_penalizacion: 0, //Falta agregar un input, pero por ahora sera 0
+    conciliado: false, //Siempre es false
+    credito: false, //depende del checkbox is_credito
+    codigo_reservacion_hotel: "", //del input
+    estado: "pending",
+    costo_total: 0, //Falta agregar input
+    costo_impuestos: 0, //Falta agregar input
+    costo_subtotal: 0, //Falta agregar input
+    fecha_limite_pago: "2025-11-21",
+    fecha_limite_cancelacion: "2025-11-21",
+    items: [
+      {
+        id_item: 0,
+        total: 0,
+        subtotal: 0,
+        impuestos: [
+          {
+            id_impuesto: 0,
+            name: "iva",
+            total: 0,
+            base: 0,
+            rate: .16
+          }
+        ],
+      }
+    ],
+    viajeros: [
+      {
+        id_viajero: 0,
+        is_principal: true
+      },
+      {
+        id_viajero: 1,
+        is_principal: false
+      },
+    ]
+  }
 }

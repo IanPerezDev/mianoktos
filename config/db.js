@@ -24,10 +24,11 @@ async function executeTransaction(query, params, callback) {
   try {
     await connection.beginTransaction();
     const [results] = await connection.execute(query, params);
-    await callback(results, connection);
-    const resultsCallback = await connection.commit();
+    const resultsCallback = await callback(results, connection);
+    await connection.commit();
     return { results, resultsCallback };
   } catch (error) {
+    console.log("UPS HICIMOS ROLLBACK POR SI LAS DUDAS")
     await connection.rollback();
     throw error;
   } finally {

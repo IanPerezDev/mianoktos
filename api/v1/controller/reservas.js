@@ -1,22 +1,21 @@
-let model = require("../model/solicitud")
+const model = require("../model/reservas")
 
 const create = async (req, res) => {
   try {
-    let response = await model.createSolicitudes(req.body)
+    let response = await model.insertarReserva(req.body)
     res.status(201).json({ message: "Solicitud created successfully", data: response })
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Internal Server Error', details: error.message })
   }
 }
-
 const read = async (req, res) => {
   try {
-    let solicitudes = await model.getSolicitudes()
-    res.status(200).json(solicitudes)
+    let response = await model.getReserva()
+    res.status(201).json({ message: "Solicitud created successfully", data: response })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Internal Server Error', details: error })
+    res.status(500).json({ error: 'Internal Server Error', details: error.message })
   }
 }
 
