@@ -38,8 +38,22 @@ const getAgenteEmpresa = async(id_agente) => {
   }
 }
 
+const getEmpresasDatosFiscales = async(id_agente) => {
+  try {
+    const query = "SELECT * FROM vw_datos_fiscales_detalle WHERE id_agente = ?";
+    const params = [id_agente];
+    const response = await executeQuery(query, params);
+    console.log("hola");
+    console.log(response);
+    return response;
+  } catch (error) {
+    throw error
+  }
+}
+
 module.exports = {
   createAgente,
   getAgente,
-  getAgenteEmpresa
+  getAgenteEmpresa,
+  getEmpresasDatosFiscales
 }
