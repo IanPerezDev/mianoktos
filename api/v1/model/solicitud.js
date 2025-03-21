@@ -1,4 +1,5 @@
 const { executeTransaction, executeQuery } = require("../../../config/db");
+const { v4: uuidv4 } = require("uuid")
 
 const createSolicitudYTicket = async (solicitud) => {
   try {
@@ -16,9 +17,46 @@ const createSolicitudYTicket = async (solicitud) => {
   }
 }
 
+const createSolicitudes = async (body) => {
+  try {
+    const { solicitudes } = body
+    const id_servicio = `ser-${uuidv4()}`;
+    const query_servicio = `INSERT INTO servicios (id_servicio, total, subtotal, impuestos, is_credito, otros_impuestos, fecha_limite_pago) VALUES (?,?,?,?,?,?,?);`
+    const total = solicitudes.reduce((prev, current) => (prev + current.total_price), 0)
+    const subtotal = parseFloat((total * .84).toFixed(2));
+    const impuestos = parseFloat((total * .16).toFixed(2));
+    const params_servicio = [id_servicio, total, subtotal, impuestos, null, null, null]
+
+    const response = await executeTransaction(query_servicio, params_servicio,
+      async (results, connection) => {
+        try {
+
+          const query_solicitudes = `INSERT INTO solicitudes (id_solicitud, id_servicio, confirmation_code, id_viajero, hotel, check_in, check_out, room, total, status) VALUES ${solicitudes.map(obj => "(?,?,?,?,?,?,?,?,?,?)").join(",")};`
+
+          const params_solicitudes = solicitudes.flatMap(solicitud => {
+            let id_solicitud = `sol-${uuidv4()}`
+            const { confirmation_code, id_viajero, hotel_name, check_in, check_out, room_type, total_price, status } = solicitud
+            return [id_solicitud, id_servicio, confirmation_code, id_viajero, hotel_name, check_in, check_out, room_type, total_price, status]
+          })
+
+          const response_solicitudes = await connection.execute(query_solicitudes, params_solicitudes)
+          return response_solicitudes
+        } catch (error) {
+          throw error;
+        }
+
+      }
+    )
+
+    return response
+  } catch (error) {
+    throw error
+  }
+}
+
 const getSolicitudes = async () => {
   try {
-    let query = `SELECT * FROM solicitudes`;
+    let query = `SELECT id_solicitud, id_servicio, confirmation_code, id_viajero, hotel, check_in, check_out, room, ROUND(total, 2) as total, status FROM solicitudes`;
     let response = await executeQuery(query);
     return response;
 
@@ -29,5 +67,6 @@ const getSolicitudes = async () => {
 
 module.exports = {
   createSolicitudYTicket,
-  getSolicitudes
+  getSolicitudes,
+  createSolicitudes
 }

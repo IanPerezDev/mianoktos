@@ -28,6 +28,7 @@ async function executeTransaction(query, params, callback) {
     await connection.commit();
     return { results, resultsCallback };
   } catch (error) {
+    console.log("UPS HICIMOS ROLLBACK POR SI LAS DUDAS")
     await connection.rollback();
     throw error;
   } finally {
