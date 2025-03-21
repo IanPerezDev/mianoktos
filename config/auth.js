@@ -9,10 +9,12 @@ const valuesFacturama = {
 };
 
 const API_STRIPE_TEST = process.env.API_STRIPE_TEST
+const API_SENDGRID = process.env.API_SENDGRID
 
 module.exports = {
   API_KEY,
   API_STRIPE,
   API_STRIPE_TEST,
+  API_SENDGRID,
   valuesFacturama
 }

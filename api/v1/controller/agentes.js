@@ -4,7 +4,7 @@ const create = async (req, res) => {
   try {
 
     const response = await model.createAgente(req.body);
-    
+
     res.status(201).json({ message: "Agente creado correctamente", data: response })
   } catch (error) {
     console.log(error)
@@ -15,8 +15,32 @@ const create = async (req, res) => {
 const read = async (req, res) => {
 
   try {
+    const { id_agente } = req.query;
+    const agentes = await model.getAgente(id_agente);
 
-    const agentes = await model.getAgentes()
+    res.status(200).json({ data: agentes })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
+const readAgentesCompanies = async (req, res) => {
+  try {
+    const { id_agente } = req.query;
+    const agentes = await model.getAgenteEmpresa(id_agente);
+
+    res.status(200).json({ data: agentes })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
+const readEmpresasDatosFiscales = async (req, res) => {
+  try {
+    const { id_agente } = req.query;
+    const agentes = await model.getEmpresasDatosFiscales(id_agente);
 
     res.status(200).json({ data: agentes })
   } catch (error) {
@@ -27,5 +51,7 @@ const read = async (req, res) => {
 
 module.exports = {
   create,
-  read
+  read,
+  readAgentesCompanies,
+  readEmpresasDatosFiscales,
 }
