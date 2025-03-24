@@ -32,8 +32,8 @@ const createSolicitudes = async (body) => {
       params_servicio,
       async (results, connection) => {
         try {
-          const query_solicitudes = `INSERT INTO solicitudes (id_solicitud, id_servicio, confirmation_code, id_viajero, hotel, check_in, check_out, room, total, status) VALUES ${solicitudes
-            .map(() => "(?,?,?,?,?,?,?,?,?,?)")
+          const query_solicitudes = `INSERT INTO solicitudes (id_solicitud, id_servicio, id_usuario_generador, confirmation_code, id_viajero, hotel, check_in, check_out, room, total, status) VALUES ${solicitudes
+            .map(() => "(?,?,?,?,?,?,?,?,?,?,?)")
             .join(",")};`;
 
           const params_solicitudes = solicitudes.flatMap((solicitud) => {
@@ -52,6 +52,7 @@ const createSolicitudes = async (body) => {
             return [
               id_solicitud,
               id_servicio,
+              id_viajero,
               confirmation_code,
               id_viajero,
               hotel,
@@ -68,14 +69,14 @@ const createSolicitudes = async (body) => {
             params_solicitudes
           );
           console.log(response_solicitudes);
-          return {id_servicio: id_servicio};
+          return { id_servicio: id_servicio };
         } catch (error) {
           throw error;
         }
       }
     );
 
-    return {id_servicio: id_servicio};;
+    return { id_servicio: id_servicio };;
   } catch (error) {
     throw error;
   }
@@ -83,10 +84,22 @@ const createSolicitudes = async (body) => {
 
 const getSolicitudes = async () => {
   try {
-    let query = `SELECT id_solicitud, id_servicio, confirmation_code, id_viajero, hotel, check_in, check_out, room, ROUND(total, 2) as total, status FROM solicitudes`;
+    let query = `select solicitudes.*, ROUND(solicitudes.total, 2) as solicitud_total, servicios.created_at from servicios left join solicitudes on servicios.id_servicio = solicitudes.id_servicio order by created_at desc;`;
     let response = await executeQuery(query);
-    return response;
+    let group_service = Object.groupBy(response, ({ id_servicio }) => id_servicio)
+    let array_services = Object.entries(group_service).map(([key, value]) => ({ id_servicio: key, solicitudes: value }))
 
+    return array_services;
+  } catch (error) {
+    throw error;
+  }
+}
+const getSolicitudesClient = async () => {
+  try {
+    let query = `select solicitudes.*, ROUND(solicitudes.total, 2) as solicitud_total, servicios.created_at from servicios left join solicitudes on servicios.id_servicio = solicitudes.id_servicio order by created_at desc;`;
+    let response = await executeQuery(query);
+
+    return response;
   } catch (error) {
     throw error;
   }
@@ -95,5 +108,6 @@ const getSolicitudes = async () => {
 module.exports = {
   createSolicitudYTicket,
   getSolicitudes,
-  createSolicitudes
+  createSolicitudes,
+  getSolicitudesClient
 }
