@@ -7,7 +7,7 @@ const cors = require("cors")
 
 //Control de CORS
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://viajaconmia.com', 'http://localhost:3000', 'https://miaadmin-git-main-luiscastaneda-tos-projects.vercel.app'],
+  origin: ['http://localhost:5173', 'https://viajaconmia.com', 'http://localhost:3000', 'https://miaadmin.vercel.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key', "cache-control", "pragma", "Expires"],
 };
