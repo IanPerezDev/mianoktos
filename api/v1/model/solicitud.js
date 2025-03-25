@@ -126,6 +126,8 @@ const getSolicitudesClient = async () => {
   }
 }
 
+
+
 module.exports = {
   createSolicitudYTicket,
   getSolicitudes,

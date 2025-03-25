@@ -67,7 +67,7 @@ const getCreditoAgente = async (body) => {
     console.log(body)
     const { id_agente } = body;
     const query = `
-      SELECT agentes.id_agente, agentes.tiene_credito_consolidado, agentes.monto_credito, empresas.id_empresa, empresas.tiene_credito, empresas.monto_credito, empresas.nombre_comercial, empresas.razon_social, empresas.tipo_persona
+      SELECT agentes.id_agente, agentes.nombre, agentes.tiene_credito_consolidado, agentes.monto_credito, empresas.id_empresa, empresas.tiene_credito, empresas.monto_credito, empresas.nombre_comercial, empresas.razon_social, empresas.tipo_persona
       FROM agentes
       JOIN empresas_agentes ON agentes.id_agente = empresas_agentes.id_agente
       JOIN empresas ON empresas.id_empresa = empresas_agentes.id_empresa
@@ -80,9 +80,24 @@ const getCreditoAgente = async (body) => {
   }
 };
 
+const getCreditoTodos = async () => {
+  try {
+    const query = `
+      SELECT agentes.id_agente, agentes.nombre, agentes.tiene_credito_consolidado, agentes.monto_credito, empresas.id_empresa, empresas.tiene_credito, empresas.monto_credito, empresas.nombre_comercial, empresas.razon_social, empresas.tipo_persona
+      FROM agentes
+      JOIN empresas_agentes ON agentes.id_agente = empresas_agentes.id_agente
+      JOIN empresas ON empresas.id_empresa = empresas_agentes.id_empresa;`;
+    const response = await executeQuery(query);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   createPagos,
   readPagos,
   getCreditoAgente,
-  getCreditoEmpresa
+  getCreditoEmpresa,
+  getCreditoTodos
 };
