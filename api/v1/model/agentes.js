@@ -2,8 +2,9 @@ const { executeTransaction, executeQuery } = require("../../../config/db");
 
 const createAgente = async (data) => {
   try {
+    console.log(data)
     let query = `INSERT INTO agentes (id_agente, nombre) VALUES (?,?)`;
-    let nombre = [data.primer_nombre, data.segundo_nombre, data.apellido_paterno, data.apellido_materno].filter(item => typeof item == "string").join(" ");
+    let nombre = [data.primer_nombre, data.segundo_nombre, data.apellido_paterno, data.apellido_materno].filter(item => !!item).join(" ");
     let params = [data.id, nombre];
     let response = await executeQuery(query, params);
     console.log(response);
