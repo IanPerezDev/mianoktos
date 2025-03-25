@@ -6,8 +6,8 @@ const insertarReserva = async (solicitud) => {
     const id_booking = `boo-${uuidv4()}`
     const id_hospedaje = `hos-${uuidv4()}`
     const { id_servicio, estado, check_in, check_out, id_viajero, nombre_hotel, total, subtotal, impuestos, tipo_cuarto, noches, costo_subtotal, costo_total, costo_impuestos, codigo_reservacion_hotel, items, id_solicitud } = solicitud
-    const query = `INSERT INTO bookings (id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, fecha_pago_proveedor, fecha_limite_cancelacion ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`
-    const params = [id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, null, null];
+    const query = `INSERT INTO bookings (id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, fecha_pago_proveedor, fecha_limite_cancelacion, id_solicitud ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);`
+    const params = [id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, null, null, id_solicitud];
 
     const response = await executeTransaction(query, params, async (results, connection) => {
       try {

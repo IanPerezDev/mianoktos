@@ -2,9 +2,9 @@ const { executeQuery } = require("../../../config/db");
 const { v4: uuidv4 } = require("uuid");
 
 const createPagos = async (datosPago) => {
-    try {
-        const id_pago = `pag-${uuidv4()}`;
-        const query = `
+  try {
+    const id_pago = `pag-${uuidv4()}`;
+    const query = `
           INSERT INTO pagos 
           (
             id_pago, id_servicio, monto_a_credito, responsable_pago_empresa,
@@ -13,38 +13,76 @@ const createPagos = async (datosPago) => {
           ) 
           VALUES (?,?,?,?,?,?,?,?,?,?,?)`;
 
-        const params = [
-            id_pago,
-            datosPago.id_servicio,  // Requerido de la relación con servicios
-            datosPago.monto_a_credito || 0.0,  // Campo NOT NULL
-            datosPago.responsable_pago_empresa || null,
-            datosPago.responsable_pago_agente || null,
-            datosPago.fecha_creacion || new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
-            datosPago.pago_por_credito || null,
-            datosPago.pendiente_por_cobrar || false,
-            datosPago.total || null,
-            datosPago.subtotal || null,
-            datosPago.impuestos || null
-        ];
+    const params = [
+      id_pago,
+      datosPago.id_servicio,  // Requerido de la relación con servicios
+      datosPago.monto_a_credito || 0.0,  // Campo NOT NULL
+      datosPago.responsable_pago_empresa || null,
+      datosPago.responsable_pago_agente || null,
+      datosPago.fecha_creacion || new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
+      datosPago.pago_por_credito || null,
+      datosPago.pendiente_por_cobrar || false,
+      datosPago.total || null,
+      datosPago.subtotal || null,
+      datosPago.impuestos || null
+    ];
 
-        const response = await executeQuery(query, params);
-        return ({success:true});
-    } catch (error) {
-        throw error;
-    }
+    const response = await executeQuery(query, params);
+    return ({ success: true });
+  } catch (error) {
+    throw error;
+  }
 };
 
 const readPagos = async () => {
-    try {
-        const query = "SELECT * FROM pagos";
-        const response = await executeQuery(query);
-        return response;
-    } catch (error) {
-        throw error;
-    }
+  try {
+    const query = "SELECT * FROM pagos";
+    const response = await executeQuery(query);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getCreditoEmpresa = async (body) => {
+  try {
+    console.log(body)
+    const { id_empresa } = body;
+    const params = [id_empresa];
+    const query = `
+    SELECT empresas.id_empresa, empresas.tiene_credito, empresas.monto_credito, empresas.nombre_comercial, empresas.razon_social, empresas.tipo_persona, agentes.id_agente, agentes.tiene_credito_consolidado, agentes.monto_credito
+    FROM empresas
+    JOIN empresas_agentes ON empresas.id_empresa = empresas_agentes.id_empresa
+    JOIN agentes ON agentes.id_agente = empresas_agentes.id_agente
+    WHERE empresas.id_empresa = 1;`
+    const response = await executeQuery(query, params);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getCreditoAgente = async (body) => {
+  try {
+    console.log(body)
+    const { id_agente } = body;
+    const query = `
+      SELECT agentes.id_agente, agentes.tiene_credito_consolidado, agentes.monto_credito, empresas.id_empresa, empresas.tiene_credito, empresas.monto_credito, empresas.nombre_comercial, empresas.razon_social, empresas.tipo_persona
+      FROM agentes
+      JOIN empresas_agentes ON agentes.id_agente = empresas_agentes.id_agente
+      JOIN empresas ON empresas.id_empresa = empresas_agentes.id_empresa
+      WHERE agentes.id_agente = ?; `;
+    const params = [id_agente];
+    const response = await executeQuery(query, params);
+    return response;
+  } catch (error) {
+    throw error;
+  }
 };
 
 module.exports = {
-    createPagos,
-    readPagos
+  createPagos,
+  readPagos,
+  getCreditoAgente,
+  getCreditoEmpresa
 };
