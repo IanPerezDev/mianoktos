@@ -94,10 +94,35 @@ const getCreditoTodos = async () => {
   }
 };
 
+const editCreditoEmpresa = async (body) => {
+  try {
+    const { id, credit } = body;
+    const query = `UPDATE empresas SET monto_credito = ?, tiene_credito = ? WHERE id_empresa = ?`;
+    const params = [credit, (credit > 0), id]
+    const response = await executeQuery(query, params);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+const editCreditoAgente = async (body) => {
+  try {
+    const { id, credit } = body;
+    const query = `UPDATE agentes SET monto_credito = ?, tiene_credito_consolidado = ? WHERE id_agente = ?`;
+    const params = [credit, (credit > 0), id]
+    const response = await executeQuery(query, params);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   createPagos,
   readPagos,
   getCreditoAgente,
   getCreditoEmpresa,
-  getCreditoTodos
+  getCreditoTodos,
+  editCreditoAgente,
+  editCreditoEmpresa
 };
