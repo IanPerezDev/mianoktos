@@ -5,13 +5,16 @@ const createPagos = async (datosPago) => {
   try {
     const id_pago = `pag-${uuidv4()}`;
     const query = `
-          INSERT INTO pagos 
-          (
-            id_pago, id_servicio, monto_a_credito, responsable_pago_empresa,
-            responsable_pago_agente, fecha_creacion, pago_por_credito,
-            pendiente_por_cobrar, total, subtotal, impuestos
-          ) 
-          VALUES (?,?,?,?,?,?,?,?,?,?,?)`;
+      INSERT INTO pagos
+      (
+        id_pago, id_servicio, monto_a_credito, responsable_pago_empresa,
+        responsable_pago_agente, fecha_creacion, pago_por_credito,
+        pendiente_por_cobrar, total, subtotal, impuestos, created_at, updated_at,
+        padre, concepto, referencia, fecha_pago, spei, monto, banco,
+        autorizacion_stripe, last_digits, fecha_transaccion, currency,
+        metodo_de_pago, tipo_de_tarjeta, tipo_de_pago
+      ) 
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
     const params = [
       id_pago,
@@ -24,7 +27,23 @@ const createPagos = async (datosPago) => {
       datosPago.pendiente_por_cobrar || false,
       datosPago.total || null,
       datosPago.subtotal || null,
-      datosPago.impuestos || null
+      datosPago.impuestos || null,
+      new Date().toISOString().slice(0, 19).replace('T', ' '), // created_at
+      new Date().toISOString().slice(0, 19).replace('T', ' '), // updated_at
+      datosPago.padre || null,
+      datosPago.concepto || null,
+      datosPago.referencia || null,
+      datosPago.fecha_pago || null,
+      datosPago.spei || null,
+      datosPago.monto || null,
+      datosPago.banco || null,
+      datosPago.autorizacion_stripe || null,
+      datosPago.last_digits || null,
+      datosPago.fecha_transaccion || null,
+      datosPago.currency || 'mxn',
+      datosPago.metodo_de_pago || null,
+      datosPago.tipo_de_tarjeta || null,
+      datosPago.tipo_de_pago || 'contado'
     ];
 
     const response = await executeQuery(query, params);
