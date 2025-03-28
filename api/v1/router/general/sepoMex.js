@@ -18,7 +18,7 @@ router.get("/buscar-codigo-postal", async (req, res) => {
       return res.status(404).json({ error: "Código postal no encontrado" });
     }
 
-    res.json({ success: true, data: response[0] }); // Devuelve la primera coincidencia
+    res.json({ success: true, data: response }); // Devuelve la primera coincidencia
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error en el servidor", details: error.message });
