@@ -106,11 +106,11 @@ const getSolicitudesClient = async () => {
   try {
     let query = `
       select solicitudes.*, ROUND(solicitudes.total, 2) as solicitud_total, servicios.created_at, hospedajes.nombre_hotel
-      from servicios 
+      from servicios
       left join solicitudes on servicios.id_servicio = solicitudes.id_servicio
-      join bookings on solicitudes.id_solicitud = bookings.id_solicitud
-      join hospedajes on bookings.id_booking = hospedajes.id_booking
-      order by created_at desc;`;
+      left join bookings on solicitudes.id_solicitud = bookings.id_solicitud
+      left join hospedajes on bookings.id_booking = hospedajes.id_booking
+      order by servicios.created_at desc;`;
     let response = await executeQuery(query);
 
     const formatResponse = response.map((item) => {

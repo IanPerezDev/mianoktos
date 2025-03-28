@@ -117,6 +117,26 @@ const editCreditoAgente = async (body) => {
   }
 }
 
+const pagoConCredito = async (body) => {
+  try {
+    const { id_servicio, monto_a_credito, responsable_pago_empresa, responsable_pago_agente, fecha_creacion, pago_por_credito, pendiente_por_cobrar, total, subtotal, impuestos, tipo_de_pago
+    } = body
+    const id_pago = `cre-${uuidv4()}`;
+    const query = `
+    INSERT INTO pagos 
+    (
+      id_pago, id_servicio, monto_a_credito, responsable_pago_empresa,
+      responsable_pago_agente, fecha_creacion, pago_por_credito,
+      pendiente_por_cobrar, total, subtotal, impuestos, tipo_de_pago
+    ) values (?,?,?,?,?,?,?,?,?,?,?,?)`;
+    const params = [id_pago, id_servicio, monto_a_credito, responsable_pago_empresa, responsable_pago_agente, fecha_creacion, pago_por_credito, pendiente_por_cobrar, total, subtotal, impuestos, tipo_de_pago];
+    const response = await executeQuery(query, params);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   createPagos,
   readPagos,
@@ -124,5 +144,6 @@ module.exports = {
   getCreditoEmpresa,
   getCreditoTodos,
   editCreditoAgente,
-  editCreditoEmpresa
+  editCreditoEmpresa,
+  pagoConCredito
 };
