@@ -6,5 +6,6 @@ const requiredParamsToCreate = ["solicitudes"]
 router.post("/", middleware.validateParams(requiredParamsToCreate), controller.create)
 router.get("/", controller.read)
 router.get("/client", controller.readClient)
+router.get("/id", controller.readSolicitudById)
 
 module.exports = router

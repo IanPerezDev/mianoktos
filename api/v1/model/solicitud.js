@@ -102,6 +102,24 @@ const getSolicitudes = async () => {
     throw error;
   }
 }
+
+const getSolicitudById = async (id) => {
+  try {
+    let query = `
+    select solicitudes.*, ROUND(solicitudes.total, 2) as solicitud_total, servicios.created_at 
+    from servicios 
+    left join solicitudes on servicios.id_servicio = solicitudes.id_servicio 
+    WHERE id_solicitud = ?
+    order by created_at desc;`;
+    let response = await executeQuery(query, [id]);
+    console.log(response)
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
 const getSolicitudesClient = async () => {
   try {
     let query = `
@@ -132,5 +150,6 @@ module.exports = {
   createSolicitudYTicket,
   getSolicitudes,
   createSolicitudes,
-  getSolicitudesClient
+  getSolicitudesClient,
+  getSolicitudById
 }
