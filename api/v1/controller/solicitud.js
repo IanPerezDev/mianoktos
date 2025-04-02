@@ -28,9 +28,20 @@ const readClient = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error', details: error })
   }
 }
+const readSolicitudById = async (req, res) => {
+  try {
+    const {id} = req.query
+    let solicitudes = await model.getSolicitudById(id)
+    res.status(200).json(solicitudes)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error', details: error })
+  }
+}
 
 module.exports = {
   create,
   read,
-  readClient
+  readClient,
+  readSolicitudById
 }
