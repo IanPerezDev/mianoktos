@@ -50,6 +50,36 @@ router.post('/save-payment-method', async (req, res) => {
   }
 });
 
+router.post('/delete-payment-method', async (req, res) => {
+  try {
+
+    const { id_agente, paymentMethodId } = req.body
+    // Consultar el `customer_id` de la base de datos
+    const [rows] = await executeQuery(
+      "SELECT id_cliente_stripe FROM clientes_stripe WHERE id_agente = ?;",
+      [id_agente]
+    ).catch(err => {
+      console.error("Database query error:", err);
+      throw new Error("Database connection error");
+    });
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Cliente de Stripe no encontrado para este agente" });
+    }
+
+    const customerId = rows.id_cliente_stripe;
+
+    //Guardar metodo de pago en el cliente
+    await stripeTest.paymentMethods.detach(paymentMethodId)
+
+    res.json({ success: true, message: 'Se elimino el metodo de pago' });
+
+  } catch (error) {
+    console.log(error)
+    res.json(error)
+  }
+});
+
 router.post('/make-payment', async (req, res) => {
   try {
     const { id_agente, paymentMethodId, amount } = req.body

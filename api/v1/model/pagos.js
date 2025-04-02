@@ -39,7 +39,7 @@ const createPagos = async (datosPago) => {
       datosPago.banco || null,
       datosPago.autorizacion_stripe || null,
       datosPago.last_digits || null,
-      datosPago.fecha_transaccion || null,
+      datosPago.fecha_transaccion || new Date().toISOString().split('T')[0],
       datosPago.currency || 'mxn',
       datosPago.metodo_de_pago || null,
       datosPago.tipo_de_tarjeta || null,
