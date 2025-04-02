@@ -144,10 +144,22 @@ const getSolicitudesClient = async () => {
   }
 }
 
+const getViajeroSolicitud = async (id_agente) => {
+  try {
+    let query = `select * from viajeros_con_empresas_con_agentes where id_agente = ?;`
+    let params = [id_agente]
+    let response = await executeQuery(query, params)
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
 
 
 module.exports = {
   createSolicitudYTicket,
+  getViajeroSolicitud,
   getSolicitudes,
   createSolicitudes,
   getSolicitudesClient,

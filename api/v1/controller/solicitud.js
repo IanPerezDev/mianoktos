@@ -30,8 +30,18 @@ const readClient = async (req, res) => {
 }
 const readSolicitudById = async (req, res) => {
   try {
-    const {id} = req.query
+    const { id } = req.query
     let solicitudes = await model.getSolicitudById(id)
+    res.status(200).json(solicitudes)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error', details: error })
+  }
+}
+const getViajeroFromSolicitud = async (req, res) => {
+  try {
+    const { id } = req.query
+    let solicitudes = await model.getViajeroSolicitud(id)
     res.status(200).json(solicitudes)
   } catch (error) {
     console.error(error)
@@ -43,5 +53,6 @@ module.exports = {
   create,
   read,
   readClient,
-  readSolicitudById
+  readSolicitudById,
+  getViajeroFromSolicitud
 }
