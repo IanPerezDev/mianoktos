@@ -10,7 +10,18 @@ const getCardStats = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error', details: error.message })
   }
 }
+const getCardStatsPerMonth = async (req, res) => {
+  try {
+    const { year, id_user } = req.query
+    let response = await model.getStatsPerMonth(year, id_user)
+    res.status(200).json(response)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+  }
+}
 
 module.exports = {
-  getCardStats
+  getCardStats,
+  getCardStatsPerMonth
 }
