@@ -21,7 +21,7 @@ const getStatsPerMonth = async (year, id_user) => {
     DATE_FORMAT(check_in, '%Y-%m') AS mes,
     hotel,
     COUNT(*) AS visitas,
-    SUM(total) AS total_gastado
+    ROUND(SUM(total),2) AS total_gastado
 FROM 
     solicitudes
 WHERE 
