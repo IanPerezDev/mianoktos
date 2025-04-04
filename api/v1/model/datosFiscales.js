@@ -8,7 +8,7 @@ const createDatosFiscales = async (datosFiscales) => {
       INSERT INTO datos_fiscales 
       (id_datos_fiscales, id_empresa, rfc, calle, estado, colonia, municipio, codigo_postal_fiscal, regimen_fiscal) 
       VALUES (?,?,?,?,?,?,?,?,?)`;
-    
+
     const params = [
       id_datos_fiscales,
       datosFiscales.id_empresa,
@@ -37,8 +37,18 @@ const readDatosFiscales = async () => {
     throw error;
   }
 };
+const readDatosFiscalesById = async (id) => {
+  try {
+    const query = "select * from vw_datos_fiscales_detalle where id_agente = ?";
+    const response = await executeQuery(query, [id]);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
 
 module.exports = {
   createDatosFiscales,
-  readDatosFiscales
+  readDatosFiscales,
+  readDatosFiscalesById
 };
