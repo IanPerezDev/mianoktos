@@ -120,7 +120,7 @@ const getSolicitudById = async (id) => {
   }
 }
 
-const getSolicitudesClient = async () => {
+const getSolicitudesClient = async (user_id) => {
   try {
     let query = `
       select solicitudes.*, ROUND(solicitudes.total, 2) as solicitud_total, servicios.created_at, hospedajes.nombre_hotel
@@ -128,8 +128,9 @@ const getSolicitudesClient = async () => {
       left join solicitudes on servicios.id_servicio = solicitudes.id_servicio
       left join bookings on solicitudes.id_solicitud = bookings.id_solicitud
       left join hospedajes on bookings.id_booking = hospedajes.id_booking
+      where solicitudes.id_usuario_generador = ?
       order by servicios.created_at desc;`;
-    let response = await executeQuery(query);
+    let response = await executeQuery(query, [user_id]);
 
     const formatResponse = response.map((item) => {
       return {

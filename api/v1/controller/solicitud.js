@@ -21,7 +21,8 @@ const read = async (req, res) => {
 }
 const readClient = async (req, res) => {
   try {
-    let solicitudes = await model.getSolicitudesClient()
+    const { user_id } = req.query
+    let solicitudes = await model.getSolicitudesClient(user_id)
     res.status(200).json(solicitudes)
   } catch (error) {
     console.error(error)
