@@ -126,14 +126,7 @@ const getSolicitudesClientWithViajero = async (user_id) => {
       select * from vw_viajeros_con_empresas where id_agente = ?;`;
     let response = await executeQuery(query, [user_id]);
 
-    const formatResponse = response.map((item) => {
-      return {
-        ...item,
-        hotel: item.hotel ? item.hotel : item.nombre_hotel
-      }
-    })
-
-    return formatResponse;
+    return response;
   } catch (error) {
     throw error;
   }
