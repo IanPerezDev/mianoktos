@@ -120,6 +120,24 @@ const getSolicitudById = async (id) => {
   }
 }
 
+const getSolicitudesClientWithViajero = async (user_id) => {
+  try {
+    let query = `
+      select * from vw_viajeros_con_empresas where id_agente = ?;`;
+    let response = await executeQuery(query, [user_id]);
+
+    const formatResponse = response.map((item) => {
+      return {
+        ...item,
+        hotel: item.hotel ? item.hotel : item.nombre_hotel
+      }
+    })
+
+    return formatResponse;
+  } catch (error) {
+    throw error;
+  }
+}
 const getSolicitudesClient = async (user_id) => {
   try {
     let query = `
@@ -164,5 +182,6 @@ module.exports = {
   getSolicitudes,
   createSolicitudes,
   getSolicitudesClient,
+  getSolicitudesClientWithViajero,
   getSolicitudById
 }
