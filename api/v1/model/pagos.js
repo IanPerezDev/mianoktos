@@ -63,6 +63,17 @@ const readPagos = async () => {
   }
 };
 
+const getPagos = async (id_agente) => {
+  try {
+    const query = "SELECT * FROM vista_pagos WHERE responsable_pago_agente = ?;";
+    const response = await executeQuery(query, [id_agente]);
+    console.log(response);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getCreditoEmpresa = async (body) => {
   try {
     console.log(body)
@@ -177,5 +188,6 @@ module.exports = {
   getCreditoTodos,
   editCreditoAgente,
   editCreditoEmpresa,
-  pagoConCredito
+  pagoConCredito,
+  getPagos,
 };

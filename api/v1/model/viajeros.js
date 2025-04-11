@@ -6,7 +6,7 @@ const createViajero = async (viajero) => {
     const id_viajero = `via-${uuidv4()}`;
 
     // Insertar el viajero en la tabla "viajeros"
-    const query = "INSERT INTO viajeros (id_viajero, primer_nombre, segundo_nombre, apellido_paterno, apellido_materno, correo, fecha_nacimiento, genero, telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
+    const query = "INSERT INTO viajeros (id_viajero, primer_nombre, segundo_nombre, apellido_paterno, apellido_materno, correo, fecha_nacimiento, genero, telefono, nacionalidad, numero_pasaporte, numero_empleado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
     const params = [
       id_viajero,
       viajero.primer_nombre,
@@ -17,6 +17,9 @@ const createViajero = async (viajero) => {
       viajero.fecha_nacimiento,
       viajero.genero,
       viajero.telefono,
+      viajero.nacionalidad,
+      viajero.numero_pasaporte,
+      viajero.numero_empleado,
     ];
 
     await executeTransaction(query, params, async (result, connection) => {

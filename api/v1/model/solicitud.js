@@ -134,20 +134,8 @@ const getSolicitudesClientWithViajero = async (user_id) => {
 const getSolicitudesClient = async (user_id) => {
   try {
     let query = `
-      SELECT solicitudes.*,
-      ROUND(solicitudes.total, 2) AS solicitud_total,
-      servicios.created_at,
-      hospedajes.nombre_hotel,
-      CASE
-          WHEN bookings.id_solicitud IS NOT NULL THEN TRUE
-          ELSE FALSE
-      END AS is_booking
-FROM servicios
-LEFT JOIN solicitudes ON servicios.id_servicio = solicitudes.id_servicio
-LEFT JOIN bookings ON solicitudes.id_solicitud = bookings.id_solicitud
-LEFT JOIN hospedajes ON bookings.id_booking = hospedajes.id_booking
-WHERE solicitudes.id_usuario_generador = "37507f4c-ef1a-44d5-a14e-dbd05e763223"
-ORDER BY servicios.created_at DESC;`
+      SELECT * FROM vista_solicitudes
+    WHERE id_usuario_generador = ?;`
     let response = await executeQuery(query, [user_id]);
 
     const formatResponse = response.map((item) => {
