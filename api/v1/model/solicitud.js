@@ -139,6 +139,7 @@ SELECT
     ROUND(solicitudes.total, 2) AS solicitud_total,
     servicios.created_at,
     hospedajes.nombre_hotel,
+    pagos.*,
     CASE
         WHEN bookings.id_solicitud IS NOT NULL THEN TRUE
         ELSE FALSE
