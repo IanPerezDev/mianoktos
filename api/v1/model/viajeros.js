@@ -55,8 +55,21 @@ const readViajero = async () => {
     throw error;
   }
 }
+const readViajeroById = async (id) => {
+  try {
+    const query = `select viajeros.* from viajero_empresa 
+join viajeros on viajero_empresa.id_viajero = viajeros.id_viajero
+join empresas on viajero_empresa.id_empresa = empresas.id_empresa
+where empresas.id_empresa = ?; `
+    const response = executeQuery(query, [id])
+    return response
+  } catch (error) {
+    throw error;
+  }
+}
 
 module.exports = {
   readViajero,
-  createViajero
+  createViajero,
+  readViajeroById
 }

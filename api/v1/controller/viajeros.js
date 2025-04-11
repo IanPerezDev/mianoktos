@@ -19,8 +19,18 @@ const read = async (req, res) => {
     res.status(500).json({ error: 'Error en el servidor', details: error })
   }
 }
+const readById = async (req, res) => {
+  try {
+    const viajeros = await model.readViajeroById(req.query.id)
+    res.status(200).json(viajeros)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
 
 module.exports = {
   create,
-  read
+  read,
+  readById
 }
