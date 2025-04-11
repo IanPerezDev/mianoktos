@@ -6,7 +6,7 @@ const create = async (req, res) => {
     res.status(201).json({ message: "Factura creado correctamente", data: response })
   } catch (error) {
     console.log(error)
-    res.status(500).json({ error: 'Error en el servidor', details: error })
+    res.status(500).json({ error: 'Error en el servidor', details: error, ohterDetails: error.response.data })
   }
 }
 
