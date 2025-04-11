@@ -16,11 +16,52 @@ const insertarReserva = async (solicitud) => {
 
         const response_hospedaje = await connection.execute(query_hospedaje, params_hospedaje)
 
-        const query_items = `INSERT INTO items (id_catalogo_item, id_factura, total, subtotal, impuestos, is_facturado, fecha_uso, id_hospedaje) VALUES ${items.map(item => "(?,?,?,?,?,?,?,?)").join(",")};`
 
-        const params_items = items.flatMap(item => [null, null, item.total, item.subtotal, item.impuestos, null, (new Date()).toISOString().split("T")[0], id_hospedaje])
+        const itemsConId = items.map(item => ({
+          ...item,
+          id_item: `ite-${uuidv4()}`
+        }));
+        const query_items = `INSERT INTO items (id_item, id_catalogo_item, id_factura, total, subtotal, impuestos, is_facturado, fecha_uso, id_hospedaje, costo_total, costo_subtotal, costo_impuestos, costo_iva) VALUES ${itemsConId.map(item => "(?, ?,?,?,?,?,?,?,?, ?, ?, ?, ?)").join(",")};`
+
+        const params_items = itemsConId.flatMap(item => [
+          item.id_item, null, null, item.total, item.subtotal, item.impuestos,
+          null, (new Date()).toISOString().split("T")[0], id_hospedaje,
+          item.costo_total, item.costo_subtotal, item.costo_impuestos, item.costo_iva
+        ]);
 
         const response_items = await connection.execute(query_items, params_items)
+
+        const taxesData = [];
+
+        itemsConId.forEach(item => {
+          if (item.taxes && item.taxes.length > 0) {
+            item.taxes.forEach(tax => {
+              taxesData.push({
+                id_item: item.id_item,
+                id_impuesto: tax.id_impuesto,
+                base: tax.base,
+                total: tax.total
+              });
+            });
+          }
+        });
+
+        if (taxesData.length > 0) {
+          const query_impuestos_items = `
+    INSERT INTO impuestos_items (id_impuesto, id_item, base, total)
+    VALUES ${taxesData.map(() => "(?, ?, ?, ?)").join(", ")};
+  `;
+
+          const params_impuestos_items = taxesData.flatMap(t => [
+            t.id_impuesto,
+            t.id_item,
+            t.base,
+            t.total
+          ]);
+
+          const response_impuestos_items = await connection.execute(query_impuestos_items, params_impuestos_items);
+        }
+
 
         const response_solicitud = await connection.execute(`UPDATE solicitudes SET status = "complete" WHERE id_solicitud = ?;`, [id_solicitud])
 
