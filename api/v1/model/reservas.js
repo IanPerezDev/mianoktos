@@ -6,6 +6,7 @@ const insertarReserva = async (solicitud) => {
     const id_booking = `boo-${uuidv4()}`
     const id_hospedaje = `hos-${uuidv4()}`
     const { id_servicio, estado, check_in, check_out, id_viajero, nombre_hotel, total, subtotal, impuestos, tipo_cuarto, noches, costo_subtotal, costo_total, costo_impuestos, codigo_reservacion_hotel, items, id_solicitud } = solicitud
+    console.log("Params Items:", solicitud);
     const query = `INSERT INTO bookings (id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, fecha_pago_proveedor, fecha_limite_cancelacion, id_solicitud ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);`
     const params = [id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, null, null, id_solicitud];
 
@@ -16,10 +17,14 @@ const insertarReserva = async (solicitud) => {
 
         const response_hospedaje = await connection.execute(query_hospedaje, params_hospedaje)
 
-
+        console.log("gola");
         const itemsConId = items.map(item => ({
           ...item,
-          id_item: `ite-${uuidv4()}`
+          id_item: `ite-${uuidv4()}`,
+          costo_total: item.total,
+          costo_subtotal: parseFloat(item.subtotal.toFixed(2)),
+          costo_impuestos: parseFloat(item.impuestos.toFixed(2)),
+          costo_iva: parseFloat(item.total.toFixed(2))
         }));
         const query_items = `INSERT INTO items (id_item, id_catalogo_item, id_factura, total, subtotal, impuestos, is_facturado, fecha_uso, id_hospedaje, costo_total, costo_subtotal, costo_impuestos, costo_iva) VALUES ${itemsConId.map(item => "(?, ?,?,?,?,?,?,?,?, ?, ?, ?, ?)").join(",")};`
 
@@ -31,6 +36,26 @@ const insertarReserva = async (solicitud) => {
 
         const response_items = await connection.execute(query_items, params_items)
 
+        const query_pago = `SELECT id_pago FROM pagos WHERE id_servicio = ? LIMIT 1;`;
+        const [rows] = await connection.execute(query_pago, [id_servicio]);
+
+        if (rows.length === 0) {
+          throw new Error(`No se encontró un pago para el servicio ${id_servicio}`);
+        }
+
+        const id_pago = rows[0].id_pago;
+        // Insertar en items_pagos
+        const query_items_pagos = `
+  INSERT INTO items_pagos (id_item, id_pago, monto)
+  VALUES ${itemsConId.map(() => "(?, ?, ?)").join(",")};
+`;
+
+        const params_items_pagos = itemsConId.flatMap(item => [
+          item.id_item, id_pago, item.total
+        ]);
+
+        await connection.execute(query_items_pagos, params_items_pagos);
+
         const taxesData = [];
 
         itemsConId.forEach(item => {
@@ -38,13 +63,14 @@ const insertarReserva = async (solicitud) => {
             item.taxes.forEach(tax => {
               taxesData.push({
                 id_item: item.id_item,
-                id_impuesto: tax.id_impuesto,
+                id_impuesto: 1,
                 base: tax.base,
                 total: tax.total
               });
             });
           }
         });
+        console.log(taxesData);
 
         if (taxesData.length > 0) {
           const query_impuestos_items = `
