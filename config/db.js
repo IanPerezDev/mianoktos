@@ -40,5 +40,20 @@ async function executeTransaction(query, params, callback) {
     connection.release();
   }
 }
+async function runTransaction(callback) {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const resultsCallback = await callback(connection);
+    await connection.commit();
+    return resultsCallback;
+  } catch (error) {
+    console.log("UPS HICIMOS ROLLBACK POR SI LAS DUDAS")
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
 
-module.exports = { pool, executeQuery, executeTransaction };
+module.exports = { pool, executeQuery, executeTransaction, runTransaction };
