@@ -65,7 +65,7 @@ const insertarReserva = async (solicitud) => {
 
         const response_solicitud = await connection.execute(`UPDATE solicitudes SET status = "complete" WHERE id_solicitud = ?;`, [id_solicitud])
 
-        return { response_hospedaje, response_items, response_solicitud }
+        return { response_hospedaje, response_items, response_solicitud, response_impuestos_items }
       } catch (error) {
         throw error;
       }
