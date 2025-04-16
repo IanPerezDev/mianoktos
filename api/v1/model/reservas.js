@@ -227,7 +227,9 @@ const getReservaById = async (id) => {
     solicitudes.room,
     solicitudes.total,
     solicitudes.id_usuario_generador,
-    bookings.id_booking
+    bookings.id_booking,
+    vw.primer_nombre,
+    vw.apellido_paterno
 FROM servicios
 LEFT JOIN solicitudes ON servicios.id_servicio = solicitudes.id_servicio
 LEFT JOIN bookings ON solicitudes.id_solicitud = bookings.id_solicitud
@@ -235,15 +237,16 @@ LEFT JOIN hospedajes ON bookings.id_booking = hospedajes.id_booking
 LEFT JOIN pagos ON solicitudes.id_servicio = pagos.id_servicio
 LEFT JOIN facturas_pagos ON pagos.id_pago = facturas_pagos.id_pago
 LEFT JOIN facturas ON facturas_pagos.id_factura = facturas.id_factura
+LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = solicitudes.id_viajero
 WHERE id_usuario_generador = (
 	select id_agente 
 	from empresas_agentes 
 	where id_empresa = ?
-)
+) or id_usuario_generador = ?
 ORDER BY servicios.created_at DESC;`
 
     // Ejecutar el procedimiento almacenado
-    const response = await executeQuery(query, [id])
+    const response = await executeQuery(query, [id, id])
 
     return response; // Retorna el resultado de la ejecución
 
