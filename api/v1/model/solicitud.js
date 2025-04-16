@@ -22,7 +22,7 @@ const createSolicitudes = async (body) => {
     const { solicitudes } = body;
     const id_servicio = `ser-${uuidv4()}`;
     const query_servicio = `INSERT INTO servicios (id_servicio, total, subtotal, impuestos, is_credito, otros_impuestos, fecha_limite_pago) VALUES (?,?,?,?,?,?,?);`;
-    const total = solicitudes.reduce((prev, current) => prev + current.total, 0); // Changed from total_price to total
+    const total = solicitudes.reduce((prev, current) => prev + current.total, 0);
     const subtotal = parseFloat((total * 0.84).toFixed(2));
     const impuestos = parseFloat((total * 0.16).toFixed(2));
     const params_servicio = [id_servicio, total, subtotal, impuestos, null, null, null];
@@ -36,17 +36,17 @@ const createSolicitudes = async (body) => {
             .map(() => "(?,?,?,?,?,?,?,?,?,?,?)")
             .join(",")};`;
 
-          const params_solicitudes = solicitudes.flatMap((solicitud) => {
+          const params_solicitudes_map = solicitudes.map((solicitud) => {
             let id_solicitud = `sol-${uuidv4()}`;
             // Correct destructuring to match incoming data keys
             const {
               confirmation_code,
               id_viajero,
-              hotel,       // Previously hotel_name (incorrect)
+              hotel,
               check_in,
               check_out,
-              room,        // Previously room_type (incorrect)
-              total,       // Previously total_price (incorrect)
+              room,
+              total,
               status,
             } = solicitud;
             return [
@@ -63,20 +63,20 @@ const createSolicitudes = async (body) => {
               status,
             ];
           });
+          const params_solicitudes_flat = params_solicitudes_map.flat()
 
           const response_solicitudes = await connection.execute(
             query_solicitudes,
-            params_solicitudes
+            params_solicitudes_flat
           );
-          console.log(response_solicitudes);
-          return { id_servicio: id_servicio };
+          return params_solicitudes_map.map(list => list[0]);
         } catch (error) {
           throw error;
         }
       }
     );
 
-    return { id_servicio: id_servicio };;
+    return { id_servicio: id_servicio, response };
   } catch (error) {
     throw error;
   }

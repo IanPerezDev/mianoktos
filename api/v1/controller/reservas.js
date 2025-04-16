@@ -9,10 +9,30 @@ const create = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error', details: error.message })
   }
 }
+
+const createFromOperaciones = async (req, res) => {
+  try {
+    let response = await model.createReservaFromOperaciones(req.body)
+    res.status(201).json({ message: "Solicitud created successfully", data: response })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+  }
+}
+
 const read = async (req, res) => {
   try {
     let response = await model.getReserva()
-    res.status(201).json({ message: "Solicitud created successfully", data: response })
+    res.status(201).json(response)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error', details: error.message })
+  }
+}
+const readById = async (req, res) => {
+  try {
+    let response = await model.getReservaById(req.query.id)
+    res.status(201).json(response)
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: 'Internal Server Error', details: error.message })
@@ -21,5 +41,7 @@ const read = async (req, res) => {
 
 module.exports = {
   create,
-  read
+  read,
+  readById,
+  createFromOperaciones
 }
