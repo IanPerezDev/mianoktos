@@ -41,7 +41,7 @@ async function executeTransaction(query, params, callback) {
   }
 }
  
-async function executeSP(procedure, params = []) {
+async function executeSP(procedure, params = [], raw = false) {
   const connection = await pool.getConnection();
 
   try {
@@ -49,13 +49,20 @@ async function executeSP(procedure, params = []) {
     const query = `CALL ${procedure}(${placeholders})`;
 
     const [rows] = await connection.query(query, params);
+
+    // Asegúrate de devolver esto
+    if (raw) {
+      return rows; // <-- ¡esto es lo importante!
+    }
+
     return rows[0];
   } catch (error) {
     console.error(`Error ejecutando SP "${procedure}":`, error.message);
     throw error;
   } finally {
-    connection.release(); 
+    connection.release();
+  }
 }
-};
+
  
 module.exports = { pool, executeQuery, executeTransaction,executeSP };

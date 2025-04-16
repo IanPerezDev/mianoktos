@@ -9,6 +9,7 @@ const reservas = require("../mia/reservas")
 const datosFiscales = require("../mia/datosFiscales")
 const pagos = require("../mia/pagos")
 const stats = require("../mia/stats")
+const hoteles = require("../mia/hoteles")
 
 router.use("/solicitud", solicitud)
 router.use("/agentes", agentes)
@@ -20,5 +21,6 @@ router.use("/reservas", reservas)
 router.use("/datosFiscales", datosFiscales)
 router.use("/pagos", pagos)
 router.use("/stats", stats)
+router.use("/hoteles",hoteles)
 
 module.exports = router
