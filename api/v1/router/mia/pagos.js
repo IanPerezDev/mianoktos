@@ -9,6 +9,7 @@ router.get("/agente", middleware.validateParamsQuery(["id_agente"]), controller.
 router.get("/todos", controller.getAgenteAgentesYEmpresas)
 router.post("/agente", controller.updateCreditAgent)
 router.post("/empresa", controller.updateCreditEmpresa)
-router.post("/credito", middleware.validateParams(["id_pago", "id_servicio", "monto_a_credito", "responsable_pago_empresa", "responsable_pago_agente", "fecha_creacion", "pago_por_credito", "pendiente_por_cobrar", "total", "subtotal", "impuestos", "tipo_de_pago"]), controller.pagoPorCredito)
+router.get("/pagosAgente", controller.getPagosAgente)
+router.post("/credito", middleware.validateParams(["id_servicio", "monto_a_credito", "credito_restante","responsable_pago_agente", "fecha_creacion", "pago_por_credito", "pendiente_por_cobrar", "total", "subtotal", "impuestos", "tipo_de_pago","concepto"]), controller.pagoPorCredito)
 
 module.exports = router

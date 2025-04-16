@@ -57,7 +57,7 @@ const sendOTPByEmail = async (email, otp) => {
   try {
     const msg = {
       to: email, // Correo electrónico del destinatario
-      from: 'juan.calderon@noktos.com', // Correo electrónico del remitente (debe estar verificado en SendGrid)
+      from: 'soportemia@noktos.com', // Correo electrónico del remitente (debe estar verificado en SendGrid)
       subject: 'Tu código de verificación para ingresar a MIA', // Asunto del correo
       text: `Tu código de verificación es: ${otp}`, // Versión en texto plano
       html: `

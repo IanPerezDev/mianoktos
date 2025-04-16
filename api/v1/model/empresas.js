@@ -59,8 +59,18 @@ const getEmpresas = async () => {
     throw error
   }
 }
+const getEmpresaById = async ({ id }) => {
+  try {
+    const query = "SELECT * FROM empresas WHERE id_empresa = ?"
+    const response = await executeQuery(query, [id])
+    return response[0]
+  } catch (error) {
+    throw error
+  }
+}
 
 module.exports = {
   createEmpresa,
-  getEmpresas
+  getEmpresas,
+  getEmpresaById
 }

@@ -19,6 +19,18 @@ const read = async (req, res) => {
     res.status(500).json({ error: "Error en el servidor", details: error });
   }
 };
+
+const getPagosAgente = async (req, res) => {
+  try {
+    const { id_agente } = req.query;
+    const pagos = await model.getPagos(id_agente);
+    res.status(200).json(pagos);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error en el servidor", details: error });
+  }
+};
+
 const getEmpresaCredito = async (req, res) => {
   try {
     const response = await model.getCreditoEmpresa(req.query);
@@ -82,5 +94,6 @@ module.exports = {
   getAgenteAgentesYEmpresas,
   updateCreditAgent,
   updateCreditEmpresa,
-  pagoPorCredito
+  pagoPorCredito,
+  getPagosAgente,
 };
