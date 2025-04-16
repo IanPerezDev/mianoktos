@@ -1,4 +1,5 @@
 const { executeTransaction, executeQuery } = require("../../../config/db");
+const {supabase} = require("../../../config/auth")
 
 const createAgente = async (data) => {
   try {
@@ -53,9 +54,19 @@ const getEmpresasDatosFiscales = async (id_agente) => {
   }
 }
 
+const getAllAgentes = async () => {
+  try {
+    const { data, error } = await supabase.auth.admin.listUsers();
+    return data;
+  } catch (error) {
+    throw error
+  }
+}
+
 module.exports = {
   createAgente,
   getAgente,
   getAgenteEmpresa,
-  getEmpresasDatosFiscales
+  getEmpresasDatosFiscales,
+  getAllAgentes
 }
