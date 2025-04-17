@@ -39,7 +39,7 @@ const readDatosFiscales = async () => {
 };
 const readDatosFiscalesById = async (id) => {
   try {
-    const query = "select * from vw_datos_fiscales_detalle where id_agente = ?";
+    const query = "select * from vw_datos_fiscales_detalle where id_datos_fiscales = ?";
     const response = await executeQuery(query, [id]);
     return response;
   } catch (error) {

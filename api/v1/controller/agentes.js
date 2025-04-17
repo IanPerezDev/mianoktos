@@ -81,9 +81,22 @@ const getAgenteId = async (req, res) => {
 }
 
 
+const readAgentes = async (req, res) => {
+  try {
+    const agentes = await model.getAllAgentes();
+
+    res.status(200).json({ data: agentes })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
+
 module.exports = {
   create,
   read,
   readAgentesCompanies,
-  readEmpresasDatosFiscales,getAgenteId
+  readEmpresasDatosFiscales,getAgenteId,
+  readAgentes,
 }

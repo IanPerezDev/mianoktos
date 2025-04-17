@@ -1,5 +1,8 @@
-const router = require("express").Router();
-const controller = require("../../controller/hoteles");
+const router = require("express").Router()
+const controller = require("../../controller/hoteles")
+
+router.get("/", controller.readGroupByHotel)
+
 
 router.post("/Agregar-hotel",controller.AgregarHotel);
 router.get("/Consultar-hoteles",controller.consultaHoteles);

@@ -1,6 +1,6 @@
 const {executeSP, executeQuery} = require("../../../config/db");
 const { v4: uuidv4 } = require("uuid");
-
+const model = require("../model/hoteles")
 
 const AgregarHotel = async (req, res) => {
   console.log('Llegó al endpoint de agregar hotel');
@@ -346,5 +346,21 @@ const consultaHoteles= async (req,res) => {
     
   }
   
-  module.exports = {AgregarHotel,consultaHoteles,actualizaHotel,
-    eliminaHotelLogico,consultaPrecioSencilla,consultaPrecioDoble,filtra_hoteles}
+
+
+
+const readGroupByHotel = async (req, res) => {
+  try {
+    const agentes = await model.getHotelesWithCuartos()
+    res.status(200).json(agentes)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
+module.exports = {
+  readGroupByHotel,
+  AgregarHotel,consultaHoteles,actualizaHotel,
+    eliminaHotelLogico,consultaPrecioSencilla,consultaPrecioDoble,filtra_hoteles
+}
