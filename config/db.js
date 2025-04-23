@@ -12,6 +12,13 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 15,
+  multipleStatements: true,
+  typeCast: function(field, next) {
+    if (field.type === 'JSON') {
+      return JSON.parse(field.string());
+    }
+    return next();
+  }
 });
 
 async function executeQuery(query, params) {
@@ -41,7 +48,7 @@ async function executeTransaction(query, params, callback) {
   }
 }
 
-async function executeSP(procedure, params = []) {
+async function executeSP(procedure, params = [], raw = false) {
   const connection = await pool.getConnection();
 
   try {
@@ -49,14 +56,22 @@ async function executeSP(procedure, params = []) {
     const query = `CALL ${procedure}(${placeholders})`;
 
     const [rows] = await connection.query(query, params);
-    return rows[0];
+
+    if (raw) {
+      return rows; // Devuelve todos los resultsets
+    }
+
+    // Devuelve solo el primer resultset por compatibilidad con casos anteriores
+    return Array.isArray(rows) && rows.length > 0 ? rows[0] : [];
   } catch (error) {
     console.error(`Error ejecutando SP "${procedure}":`, error.message);
     throw error;
   } finally {
-    connection.release(); 
+    connection.release();
+  }
 }
-};
+
+
 
 
 async function runTransaction(callback) {

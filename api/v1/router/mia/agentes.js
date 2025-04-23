@@ -8,6 +8,7 @@ router.get("/viajeros-con-empresas", middleware.validateParams([]), controller.r
 router.get("/empresas-con-agentes", middleware.validateParams([]), controller.readAgentesCompanies);
 router.get("/empresas-con-datos-fiscales", middleware.validateParams([]), controller.readEmpresasDatosFiscales);
 router.get("/agentes", middleware.validateParams([]), controller.readAgentes);
+router.get("/get-agente-id/",controller.getAgenteId)
 
 //En proceso de prueba y error
 //Extrae a todos los agentes con los datos del primer viajero que tienen
