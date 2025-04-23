@@ -11,4 +11,8 @@ router.patch("/Eliminar-hotel",controller.eliminaHotelLogico);
 router.get("/Consultar-precio-sencilla/:id_hotel",controller.consultaPrecioSencilla);
 router.get("/Consultar-precio-doble/:id_hotel",controller.consultaPrecioDoble);
 router.get("/Filtra-hoteles/:opc",controller.filtra_hoteles);
+router.get("/Consultar-tarifas-por-hotel/:id_hotel",controller.getTarifasByIdHotel);
+router.get("/Paginacion",controller.paginacion);
+router.get("/Consulta-Hoteles-por-termino",controller.BuscaHotelesPorTermino);
+router.get("/Filtra-hotel-tarifas-por-nombre",controller.get_hotel_tarifas_by_nombre);
 module.exports = router;

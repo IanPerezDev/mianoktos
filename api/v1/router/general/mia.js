@@ -12,7 +12,7 @@ const credito = require("../mia/credito")
 const stats = require("../mia/stats")
 const facturas = require("../mia/facturas")
 const hoteles = require("../mia/hoteles")
-const hoteles = require("../mia/hoteles")
+
 
 router.use("/solicitud", solicitud)
 router.use("/agentes", agentes)

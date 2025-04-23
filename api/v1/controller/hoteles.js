@@ -1,7 +1,6 @@
 const {executeSP, executeQuery} = require("../../../config/db");
 const { v4: uuidv4 } = require("uuid");
 const model = require("../model/hoteles")
-
 const AgregarHotel = async (req, res) => {
   console.log('Llegó al endpoint de agregar hotel');
   
@@ -45,9 +44,8 @@ const AgregarHotel = async (req, res) => {
       
       // Datos de desayuno (estructura opcional)
       desayuno = {
-        sencilla: { incluye: false, costo: null, precio: null },
-        doble: { incluye: false, costo: null, precio: null, costo_extra: null },
-        comentarios: null
+        sencilla: { incluye: false, precio: null, comentarios: null },
+        doble: { incluye: false, precio: null, costo_extra: null, comentarios: null },
       },
       
       // Tarifas (estructura opcional)
@@ -59,7 +57,8 @@ const AgregarHotel = async (req, res) => {
           precio_qq: null
         },
         preferenciales: []
-      }
+      },
+      notas
     } = req.body;
 
     // Validar campos obligatorios
@@ -70,17 +69,62 @@ const AgregarHotel = async (req, res) => {
       });
     }
 
-    // Generar ID único para el hotel
-    const id_hotel = `emp-${uuidv4()}`;
+    // Función para asegurar valores numéricos
+    const safeNumber = (value) => {
+      if (value === null || value === undefined || value === '') return null;
+      const num = Number(value);
+      return isNaN(num) ? null : num;
+    };
 
-    // Preparar tarifas preferenciales (manejar caso cuando no vienen)
-    const tarifas_preferenciales_json = tarifas.preferenciales && tarifas.preferenciales.length > 0 
-      ? JSON.stringify(tarifas.preferenciales) 
-      : null;
+    // Procesar tarifas preferenciales
+    const processTarifasPreferenciales = () => {
+      if (!tarifas.preferenciales || !Array.isArray(tarifas.preferenciales)) return null;
+      
+      return tarifas.preferenciales.map(tarifa => ({
+        id_agente: tarifa.id_agente || null,
+        costo_q: safeNumber(tarifa.costo_q),
+        precio_q: safeNumber(tarifa.precio_q),
+        costo_qq: safeNumber(tarifa.costo_qq),
+        precio_qq: safeNumber(tarifa.precio_qq),
+        sencilla: {
+          incluye: tarifa.sencilla?.incluye || false,
+          tipo_desayuno: tarifa.sencilla?.tipo_desayuno || null,
+          precio: safeNumber(tarifa.sencilla?.precio),
+          comentarios: tarifa.sencilla?.comentarios || null,
+          precio_noche_extra: safeNumber(tarifa.sencilla?.precio_noche_extra),
+          precio_persona_extra: safeNumber(tarifa.sencilla?.precio_persona_extra)
+        },
+        doble: {
+          incluye: tarifa.doble?.incluye || false,
+          tipo_desayuno: tarifa.doble?.tipo_desayuno || null,
+          precio: safeNumber(tarifa.doble?.precio),
+          comentarios: tarifa.doble?.comentarios || null,
+          precio_noche_extra: safeNumber(tarifa.doble?.precio_noche_extra),
+          precio_persona_extra: safeNumber(tarifa.doble?.precio_persona_extra)
+        }
+      }));
+    };
 
-    // Ejecutar el stored procedure
-    const result = await executeSP("sp_inserta_hotel3", [
-      // Datos del hotel
+    const tarifasPreferenciales = processTarifasPreferenciales();
+    
+    // Convertir a JSON string solo si hay datos
+    const tarifas_preferenciales_json = tarifasPreferenciales && tarifasPreferenciales.length > 0 
+      ? JSON.stringify(tarifasPreferenciales)
+      : '[]';
+
+    console.log("Tarifas preferenciales a enviar:", tarifas_preferenciales_json);
+
+    // Formatear fecha de vigencia del convenio si existe
+    const formatVigenciaConvenio = (dateString) => {
+      if (!dateString) return null;
+      
+      // Asume formato DD-MM-YYYY
+      const [day, month, year] = dateString.split('-');
+      return `${year}-${month}-${day}`;
+    };
+
+    const result = await executeSP("sp_inserta_hotel_definitivo", [
+
       id_excel || null,
       tipo_negociacion,
       nombre,
@@ -98,42 +142,40 @@ const AgregarHotel = async (req, res) => {
       colonia,
       tipo_hospedaje,
       cuenta_de_deposito,
-      vigencia_convenio,
+      formatVigenciaConvenio(vigencia_convenio),
       tipo_pago,
       disponibilidad_precio,
       contacto_convenio,
       contacto_recepcion,
-      impuestos_porcentaje,
-      impuestos_moneda,
+      safeNumber(impuestos_porcentaje),
+      safeNumber(impuestos_moneda),
       menoresEdad,
-      paxExtraPersona,
+      safeNumber(paxExtraPersona),
       transportacion,
       transportacionComentarios,
       urlImagenHotel,
       urlImagenHotelQ,
       urlImagenHotelQQ,
-      calificacion,
+      safeNumber(calificacion),
       activo,
       
-      // Datos de desayuno
-      desayuno.sencilla.incluye,
-      desayuno.sencilla.costo,
-      desayuno.sencilla.precio,
-      desayuno.doble.incluye,
-      desayuno.doble.costo,
-      desayuno.doble.precio,
-      desayuno.doble.costo_extra,
-      desayuno.comentarios,
+      desayuno?.sencilla?.incluye || false,
+      safeNumber(desayuno?.sencilla?.precio),
+      desayuno?.sencilla?.comentarios || null,
+      desayuno?.doble?.incluye || false,
+      safeNumber(desayuno?.doble?.precio),
+      safeNumber(desayuno?.doble?.costo_extra),
+      desayuno?.doble?.comentarios || null,
       
-      // Tarifa general
-      tarifas.general.costo_q,
-      tarifas.general.precio_q,
-      tarifas.general.costo_qq,
-      tarifas.general.precio_qq,
+      safeNumber(tarifas?.general?.costo_q),
+      safeNumber(tarifas?.general?.precio_q),
+      safeNumber(tarifas?.general?.costo_qq),
+      safeNumber(tarifas?.general?.precio_qq),
       
-      // Tarifas preferenciales (JSON)
-      tarifas_preferenciales_json
-    ],false);
+      tarifas_preferenciales_json,
+      
+      notas || ""
+    ], false);
 
     res.status(200).json({ 
       success: true, 
@@ -255,6 +297,21 @@ const consultaHoteles= async (req,res) => {
     }
   };
 
+  const getTarifasByIdHotel = async (req,res) => {
+    const {id_hotel}  = req.params;
+    console.log(id_hotel)
+    try {
+      const tarifas = await executeSP("sp_get_tarifas_by_id_hotel",[id_hotel],false);
+      if (!tarifas) {
+        res.status(404).json({message: "No se encontraron tarifas asociadas a este hotel"});
+      } else {
+        res.status(200).json({message: "Tarifas recuperadas exitosamente", tarifas: tarifas});
+      }
+    } catch (error) {
+      res.status(500).json({message: "Error en el servidor", error: error});
+    }
+    
+  }
   const eliminaHotelLogico = async (req,res) => {
     const {id_hotel}= req.body;
     try {
@@ -346,9 +403,46 @@ const consultaHoteles= async (req,res) => {
     
   }
   
+const paginacion = async (req, res) => {
+  const {pagina} = req.query;
+  try {
+    const result = await executeSP("SP_Hoteles_Paginacion",[pagina],false);
+    if (!result[0]) {
+      res.status(404).json({message: "No se encontraron hoteles para la pagina solicitada"});
 
+    } else {
+      const hoteles = result;
+      const info_paginacion = result[1]?.[0] || {
+        pagina: pagina,
+        total_paginas: 1,
+        total_registros: hoteles.length
+      };
+      res.status(200).json({message: "Hoteles recuerados con exito",
+        hoteles: hoteles, info:info_paginacion});
 
+    }
+  } catch (error) {
+    res.status(500).json({message: "Error interno del servidor"});
 
+  }  
+}
+
+const BuscaHotelesPorTermino = async (req,res) => {
+  const {termino} = req.query;
+  try {
+    const result = await executeSP("sp_Hoteles_Buscar",[termino],false);
+  if (!result) {
+    res.status(404).json({message: "No se encontraron hoteles con esa busqueda"});
+
+  } else {
+    res.status(200).json({message: "Mostrando los hoteles coincidentes",hoteles: result});
+
+  }
+  } catch (error) {
+    res.status(500).json({message: "No se encontraron hoteles para esa busqueda"});
+
+  }
+}
 const readGroupByHotel = async (req, res) => {
   try {
     const agentes = await model.getHotelesWithCuartos()
@@ -358,9 +452,91 @@ const readGroupByHotel = async (req, res) => {
     res.status(500).json({ error: 'Error en el servidor', details: error })
   }
 }
+const get_hotel_tarifas_by_nombre = async (req, res) => {
+  const { nombre } = req.query;  // Asegúrate de acceder correctamente al parámetro 'nombre' desde la query
+  const nombre_up = nombre.toUpperCase();
+  try {
+    const result = await executeSP("sp_get_hotel_tarifas_por_nombre", [nombre_up], false);
+
+    if (!result || result.length === 0) {
+      return res.status(404).json({ message: "No se encontraron hoteles con esa búsqueda" });
+    }
+
+    // Organizar la respuesta estructurando los datos
+    const hotels = result.map(row => ({
+      nombre_hotel: row.hotel_nombre,
+      hotel_info: {
+        id_hotel: row.id_hotel,
+        nombre: row.hotel_nombre,
+        correo: row.hotel_correo,
+        telefono: row.hotel_telefono,
+        rfc: row.hotel_rfc,
+        razon_social: row.hotel_razon_social,
+        direccion: row.hotel_direccion,
+        latitud: row.hotel_latitud,
+        longitud: row.hotel_longitud,
+        convenio: row.hotel_convenio,
+        descripcion: row.hotel_descripcion,
+        calificacion: row.hotel_calificacion,
+        tipo_hospedaje: row.hotel_tipo_hospedaje,
+        cuenta_de_deposito: row.hotel_cuenta_de_deposito,
+        estado: row.hotel_estado,
+        ciudad_zona: row.hotel_ciudad_zona,
+        noktosq: row.hotel_noktosq,
+        noktosqq: row.hotel_noktosqq,
+        menoresedad: row.hotel_menoresedad,
+        paxextrapersona: row.hotel_paxextrapersona,
+        desayunoincluido: row.hotel_desayunoincluido,
+        desayunocomentarios: row.hotel_desayunocomentarios,
+        desayunoprecioporpersona: row.hotel_desayunoprecioporpersona,
+        transportacion: row.hotel_transportacion,
+        transportacioncomentarios: row.hotel_transportacioncomentarios,
+        urlimagenhotel: row.hotel_urlimagenhotel,
+        urlimagenhotelq: row.hotel_urlimagenhotelq,
+        urlimagenhotelqq: row.hotel_urlimagenhotelqq,
+        activo: row.hotel_activo,
+        comentarios: row.hotel_comentarios,
+        id_sepomex: row.hotel_id_sepomex,
+        codigopostal: row.hotel_codigopostal,
+        id_hotel_excel: row.hotel_id_hotel_excel,
+        colonia: row.hotel_colonia,
+        tipo_negociacion: row.hotel_tipo_negociacion,
+        vigencia_convenio: row.hotel_vigencia_convenio,
+        tipo_pago: row.hotel_tipo_pago,
+        disponibilidad_precio: row.hotel_disponibilidad_precio,
+        contacto_convenio: row.hotel_contacto_convenio,
+        contacto_recepcion: row.hotel_contacto_recepcion,
+        impuestos_porcentaje: row.hotel_impuestos_porcentaje,
+        impuestos_moneda: row.hotel_impuestos_moneda,
+        tarifas_hotel: result.filter(item => item.id_hotel === row.id_hotel)
+          .map(tarifa => ({
+            id_tarifa: tarifa.id_tarifa,
+            id_agente: tarifa.id_agente,
+            precio: tarifa.precio,
+            costo:tarifa.costo,
+            tipo_cuarto:tarifa.tipos_cuartos=1 ? "SENCILLO": "DOBLE",
+            incluye_desayuno: tarifa.incluye_desayuno,
+            precio_desayuno:tarifa.precio_desayuno,
+            tipo_desayuno: tarifa.tipo_desayuno,
+            comentario_desayuno: tarifa.comentario_desayuno,
+            precio_noche_extra: tarifa.precio_noche_extra,
+            precio_persona_extra: tarifa.precio_persona_extra,
+          }))
+      }
+    }));
+
+    // Devolver la respuesta estructurada
+    res.status(200).json({ message: "Información recuperada correctamente", hotels });
+
+  } catch (error) {
+    console.error("Error al recuperar la información:", error);
+    res.status(500).json({ message: "Error al recuperar la información del hotel" });
+  }
+};
 
 module.exports = {
   readGroupByHotel,
   AgregarHotel,consultaHoteles,actualizaHotel,
-    eliminaHotelLogico,consultaPrecioSencilla,consultaPrecioDoble,filtra_hoteles
+    eliminaHotelLogico,consultaPrecioSencilla,consultaPrecioDoble,filtra_hoteles,getTarifasByIdHotel,
+    paginacion,BuscaHotelesPorTermino,get_hotel_tarifas_by_nombre
 }
