@@ -48,6 +48,49 @@ const createEmpresa = async (empresa) => {
   }
 };
 
+const updateEmpresa = async (empresa) => {
+  try {
+    // Asumimos que empresa.id_empresa ya existe
+    if (!empresa.id_empresa) {
+      throw new Error("Se requiere el ID de la empresa para actualizar");
+    }
+    console.log(empresa);
+
+    const query = `
+      UPDATE empresas 
+      SET 
+        razon_social = ?, 
+        nombre_comercial = ?, 
+        tipo_persona = ?, 
+        calle = ?, 
+        colonia = ?, 
+        estado = ?, 
+        municipio = ?, 
+        codigo_postal = ?
+      WHERE id_empresa = ?;
+    `;
+
+    let params = [
+      empresa.razon_social,
+      empresa.nombre_comercial,
+      empresa.tipo_persona,
+      empresa.calle || null,
+      empresa.colonia || null,
+      empresa.estado || null,
+      empresa.municipio || null,
+      empresa.codigo_postal || null,
+      empresa.id_empresa, // ID de la empresa a actualizar
+    ];
+    const response = await executeQuery(query,params)
+    return {
+      success: true,
+      id_empresa: empresa.id_empresa, // Devolvemos el mismo ID
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 
 const getEmpresas = async () => {
@@ -72,5 +115,6 @@ const getEmpresaById = async ({ id }) => {
 module.exports = {
   createEmpresa,
   getEmpresas,
-  getEmpresaById
+  getEmpresaById, 
+  updateEmpresa,
 }

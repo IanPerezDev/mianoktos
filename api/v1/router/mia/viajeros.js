@@ -8,6 +8,7 @@ router.get("/", controller.read)
 router.get("/get-viajeros-by-agente/:id_agente", controller.get_viajeros_by_id_agente)
 router.get("/get-primer-viajero-empresa/:id_agente", controller.primeros_empresa_viajero)
 router.get("/id", controller.readById)
+router.put("/", controller.update)
 
 router.get("/agente", async (req, res) => {
   try {
