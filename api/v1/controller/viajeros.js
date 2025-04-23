@@ -11,6 +11,16 @@ const create = async (req, res) => {
   }
 }
 
+const update = async (req, res) => {
+  try {
+    const response = await model.updateViajero(req.body)
+    res.status(201).json({ message: "Viajero actualizado correctamente", data: response })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
 const read = async (req, res) => {
   try {
     const viajeros = await model.readViajero(req.body)
@@ -65,5 +75,5 @@ const primeros_empresa_viajero = async (req,res) => {
 }
 module.exports = {
   create,
-  read, get_viajeros_by_id_agente,primeros_empresa_viajero,  readById
+  read, get_viajeros_by_id_agente,primeros_empresa_viajero,  readById, update,
 }

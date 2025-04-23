@@ -10,6 +10,18 @@ const create = async (req, res) => {
   }
 }
 
+const update = async (req, res) => {
+  try {
+    const response = await model.updateEmpresa(req.body)
+    res.status(201).json({ message: "Empresa actualizada correctamente", data: response })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
+
+
 const read = async (req, res) => {
   try {
     const agentes = await model.getEmpresas()
@@ -32,5 +44,6 @@ const readbyId = async (req, res) => {
 module.exports = {
   create,
   read,
-  readbyId
+  readbyId,
+  update,
 }

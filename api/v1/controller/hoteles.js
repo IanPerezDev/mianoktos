@@ -534,9 +534,21 @@ const get_hotel_tarifas_by_nombre = async (req, res) => {
   }
 };
 
+const readHotelesWithTarifa = async (req, res) => {
+  try {
+    const hoteles = await model.getHotelesWithTarifas();
+    res.status(200).json({ data: hoteles })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
 module.exports = {
   readGroupByHotel,
   AgregarHotel,consultaHoteles,actualizaHotel,
     eliminaHotelLogico,consultaPrecioSencilla,consultaPrecioDoble,filtra_hoteles,getTarifasByIdHotel,
-    paginacion,BuscaHotelesPorTermino,get_hotel_tarifas_by_nombre
+    paginacion,BuscaHotelesPorTermino,get_hotel_tarifas_by_nombre,
+  readHotelesWithTarifa
+
 }

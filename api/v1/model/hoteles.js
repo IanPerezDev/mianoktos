@@ -8,6 +8,9 @@ const getHotelesWithCuartos = async () => {
     h.nombre AS nombre_hotel,
     h.Estado,
     h.Ciudad_Zona,
+    h.URLImagenHotel,
+    h.URLImagenHotelQ,
+    h.URLImagenHotelQQ,
     tc.id_tipo_cuarto,
     tc.nombre AS nombre_tipo_cuarto,
     t.id_tarifa,
@@ -38,6 +41,9 @@ const getHotelesWithCuartos = async () => {
           nombre_hotel: item.nombre_hotel,
           Estado: item.Estado,
           Ciudad_Zona: item.Ciudad_Zona,
+          imagenes: [item.URLImagenHotel,
+          item.URLImagenHotelQ,
+          item.URLImagenHotelQQ],
           tipos_cuartos: [tipoCuarto]
         });
       } else {
@@ -54,6 +60,17 @@ const getHotelesWithCuartos = async () => {
   }
 }
 
+const getHotelesWithTarifas = async () => {
+  try {
+    const query = "SELECT * FROM vw_hoteles_tarifas_pivot";
+    const response = await executeQuery(query);
+    return response;
+  } catch (error) {
+    throw error
+  }
+}
+
 module.exports = {
-  getHotelesWithCuartos
+  getHotelesWithCuartos,
+  getHotelesWithTarifas
 }
