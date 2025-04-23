@@ -7,6 +7,6 @@ const requiredParamsToCreate = ["estado", "check_in", "check_out", "id_viajero",
 router.post("/operaciones", middleware.validateParams(requiredParamsToCreate), controller.createFromOperaciones)
 router.post("/", middleware.validateParams(requiredParamsToCreate), controller.create)
 router.get("/", controller.read)
-router.get("/empresa", controller.readById)
+router.get("/agente", controller.readById)
 
 module.exports = router

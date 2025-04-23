@@ -214,36 +214,40 @@ const getReserva = async () => {
 const getReservaById = async (id) => {
   try {
 
-    const query = `SELECT
-	servicios.id_servicio,
-    servicios.created_at,
-    servicios.is_credito,
-    solicitudes.id_solicitud,
-    solicitudes.confirmation_code,
-    solicitudes.hotel,
-    solicitudes.id_viajero,
-    solicitudes.check_in,
-    solicitudes.check_out,
-    solicitudes.room,
-    solicitudes.total,
-    solicitudes.id_usuario_generador,
-    bookings.id_booking,
-    vw.primer_nombre,
-    vw.apellido_paterno
-FROM servicios
-LEFT JOIN solicitudes ON servicios.id_servicio = solicitudes.id_servicio
-LEFT JOIN bookings ON solicitudes.id_solicitud = bookings.id_solicitud
-LEFT JOIN hospedajes ON bookings.id_booking = hospedajes.id_booking
-LEFT JOIN pagos ON solicitudes.id_servicio = pagos.id_servicio
-LEFT JOIN facturas_pagos ON pagos.id_pago = facturas_pagos.id_pago
-LEFT JOIN facturas ON facturas_pagos.id_factura = facturas.id_factura
-LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = solicitudes.id_viajero
-WHERE id_usuario_generador = (
-	select id_agente 
+    const query = `select 
+s.id_servicio,
+s.created_at,
+s.is_credito,
+so.id_solicitud,
+so.confirmation_code,
+so.hotel,
+so.check_in,
+so.check_out,
+so.room,
+so.total,
+so.id_usuario_generador,
+b.id_booking, 
+h.codigo_reservacion_hotel, 
+p.id_pago, 
+p.pendiente_por_cobrar,
+p.monto_a_credito,
+fp.id_factura,
+vw.primer_nombre,
+vw.apellido_paterno
+from solicitudes as so
+LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
+LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
+LEFT JOIN hospedajes as h ON b.id_booking = h.id_booking
+LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
+LEFT JOIN facturas_pagos as fp ON p.id_pago = fp.id_pago
+LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
+WHERE id_usuario_generador in (
+	select id_empresa 
 	from empresas_agentes 
-	where id_empresa = ?
+	where id_agente = ?
 ) or id_usuario_generador = ?
-ORDER BY servicios.created_at DESC;`
+GROUP BY so.id_solicitud
+ORDER BY s.created_at DESC;`
 
     // Ejecutar el procedimiento almacenado
     const response = await executeQuery(query, [id, id])
