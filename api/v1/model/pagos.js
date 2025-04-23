@@ -74,6 +74,17 @@ const getPagos = async (id_agente) => {
   }
 };
 
+const getPendientes = async (id_agente) => {
+  try {
+    const query = "SELECT * FROM vista_creditos_completos WHERE responsable_pago_agente = ?;";
+    const response = await executeQuery(query, [id_agente]);
+    console.log(response);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getCreditoEmpresa = async (body) => {
   try {
     console.log(body)
@@ -149,37 +160,74 @@ const editCreditoAgente = async (body) => {
 
 const pagoConCredito = async (body) => {
   try {
-    const { id_servicio, monto_a_credito, responsable_pago_empresa, responsable_pago_agente, fecha_creacion, pago_por_credito, pendiente_por_cobrar, total, subtotal, impuestos, tipo_de_pago, credito_restante,concepto
-    } = body
-    const id_pago = `cre-${uuidv4()}`;
-    const query = `
-    INSERT INTO pagos 
-    (
-      id_pago, id_servicio, monto_a_credito, responsable_pago_empresa,
-      responsable_pago_agente, fecha_creacion, pago_por_credito,
-      pendiente_por_cobrar, total, subtotal, impuestos, tipo_de_pago,concepto
-    ) values (?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-    const params = [id_pago, id_servicio, monto_a_credito, responsable_pago_empresa || null, responsable_pago_agente, fecha_creacion, pago_por_credito, pendiente_por_cobrar, total, subtotal, impuestos, tipo_de_pago,concepto];
-    const response = await executeTransaction(query, params, async (result, connection) => {
-      console.log("Se crea pago");
+    const {
+      id_servicio,
+      monto_a_credito,
+      responsable_pago_empresa,
+      responsable_pago_agente,
+      fecha_creacion,
+      pago_por_credito,
+      pendiente_por_cobrar,
+      total,
+      subtotal,
+      impuestos,
+      concepto,
+      credito_restante,
+      currency = "mxn",
+      tipo_de_pago = "credito"
+    } = body;
 
+    const id_credito = `cre-${uuidv4()}`;
+
+    const query = `
+    INSERT INTO pagos_credito 
+    (
+      id_credito, id_servicio, monto_a_credito, responsable_pago_empresa,
+      responsable_pago_agente, fecha_creacion, pago_por_credito,
+      pendiente_por_cobrar, total, subtotal, impuestos, 
+      concepto, currency, tipo_de_pago
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    const params = [
+      id_credito,
+      id_servicio,
+      monto_a_credito,
+      responsable_pago_empresa || null,
+      responsable_pago_agente,
+      fecha_creacion,
+      pago_por_credito,
+      pendiente_por_cobrar,
+      total,
+      subtotal,
+      impuestos,
+      concepto,
+      currency,
+      tipo_de_pago
+    ];
+
+    const response = await executeTransaction(query, params, async (result, connection) => {
+      console.log("Pago a crédito registrado en pagos_credito");
+
+      // Actualizar el crédito disponible del agente
       const query2 = "UPDATE agentes SET monto_credito = ? WHERE id_agente = ?;";
       const params2 = [credito_restante, responsable_pago_agente];
 
       try {
-        const result = await connection.execute(query2, params2);
-        console.log("Se actualiza credito agente");
-        return ({ success: true });
+        await connection.execute(query2, params2);
+        console.log("Crédito del agente actualizado");
+
+        return { success: true, id_credito };
       } catch (error) {
         throw error;
       }
     });
-    return ({ success: true });
+
+    return { success: true, id_credito };
   } catch (error) {
+    console.error("Error en pagoConCredito:", error);
     throw error;
   }
 }
-
 module.exports = {
   createPagos,
   readPagos,
@@ -190,4 +238,5 @@ module.exports = {
   editCreditoEmpresa,
   pagoConCredito,
   getPagos,
+  getPendientes,
 };

@@ -80,6 +80,18 @@ const createFactura = async ({ cfdi, info_user }) => {
   }
 };
 
+const getAllFacturas = async () => {
+  try {
+    const query = "SELECT * FROM vista_facturas_pagos";
+    const response = await executeQuery(query);
+    console.log(response);
+    return response;
+  } catch (error) {
+    throw error
+  }
+}
+
 module.exports = {
   createFactura,
+  getAllFacturas,
 }

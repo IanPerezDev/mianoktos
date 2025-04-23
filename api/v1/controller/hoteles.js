@@ -10,6 +10,17 @@ const readGroupByHotel = async (req, res) => {
   }
 }
 
+const readHotelesWithTarifa = async (req, res) => {
+  try {
+    const hoteles = await model.getHotelesWithTarifas();
+    res.status(200).json({ data: hoteles })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
 module.exports = {
-  readGroupByHotel
+  readGroupByHotel,
+  readHotelesWithTarifa
 }

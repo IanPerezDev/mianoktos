@@ -10,6 +10,17 @@ const create = async (req, res) => {
   }
 }
 
+const readAllFacturas = async (req, res) => {
+  try {
+    const facturas = await model.getAllFacturas()
+    res.status(200).json(facturas)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
 module.exports = {
   create,
+  readAllFacturas,
 }

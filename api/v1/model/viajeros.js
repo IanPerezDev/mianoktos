@@ -45,6 +45,74 @@ const createViajero = async (viajero) => {
   }
 };
 
+const updateViajero = async (viajero) => {
+  try {
+    if (!viajero.id_viajero) {
+      throw new Error("Se requiere el ID del viajero para actualizar");
+    }
+
+    // Actualizar el viajero en la tabla "viajeros"
+    const query = `
+      UPDATE viajeros 
+      SET 
+        primer_nombre = ?, 
+        segundo_nombre = ?, 
+        apellido_paterno = ?, 
+        apellido_materno = ?, 
+        correo = ?, 
+        fecha_nacimiento = ?, 
+        genero = ?, 
+        telefono = ?, 
+        nacionalidad = ?, 
+        numero_pasaporte = ?, 
+        numero_empleado = ?
+      WHERE id_viajero = ?;
+    `;
+
+    const params = [
+      viajero.primer_nombre,
+      viajero.segundo_nombre,
+      viajero.apellido_paterno,
+      viajero.apellido_materno,
+      viajero.correo,
+      viajero.fecha_nacimiento,
+      viajero.genero,
+      viajero.telefono,
+      viajero.nacionalidad,
+      viajero.numero_pasaporte,
+      viajero.numero_empleado,
+      viajero.id_viajero, // El ID va al final para el WHERE
+    ];
+
+    await executeTransaction(query, params, async (result, connection) => {
+      console.log("Viajero actualizado correctamente");
+
+      // Manejo de relaciones con empresas
+      if (viajero.id_empresas && viajero.id_empresas.length > 0) {
+        // Primero eliminamos todas las relaciones existentes
+        const deleteQuery = "DELETE FROM viajero_empresa WHERE id_viajero = ?";
+        await connection.execute(deleteQuery, [viajero.id_viajero]);
+        console.log("Relaciones anteriores eliminadas");
+
+        // Luego insertamos las nuevas relaciones
+        const insertQuery = "INSERT INTO viajero_empresa (id_viajero, id_empresa) VALUES (?, ?);";
+        
+        for (const id_empresa of viajero.id_empresas) {
+          await connection.execute(insertQuery, [viajero.id_viajero, id_empresa]);
+        }
+        console.log("Nuevas relaciones viajero-empresa creadas");
+      }
+    });
+
+    return {
+      success: true,
+      id_viajero: viajero.id_viajero,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 const readViajero = async () => {
   try {
@@ -71,5 +139,6 @@ where empresas.id_empresa = ?; `
 module.exports = {
   readViajero,
   createViajero,
-  readViajeroById
+  readViajeroById,
+  updateViajero,
 }

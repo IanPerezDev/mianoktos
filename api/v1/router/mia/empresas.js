@@ -6,5 +6,6 @@ router.post("/", middleware.validateParams(["agente_id", "razon_social", "nombre
 
 router.get("/id", controller.readbyId)
 router.get("/", controller.read)
+router.put("/", controller.update);
 
 module.exports = router

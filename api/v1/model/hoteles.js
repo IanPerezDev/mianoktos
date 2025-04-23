@@ -60,6 +60,17 @@ const getHotelesWithCuartos = async () => {
   }
 }
 
+const getHotelesWithTarifas = async () => {
+  try {
+    const query = "SELECT * FROM vw_hoteles_tarifas_pivot";
+    const response = await executeQuery(query);
+    return response;
+  } catch (error) {
+    throw error
+  }
+}
+
 module.exports = {
-  getHotelesWithCuartos
+  getHotelesWithCuartos,
+  getHotelesWithTarifas
 }
