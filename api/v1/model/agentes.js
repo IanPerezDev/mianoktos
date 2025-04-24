@@ -5,7 +5,9 @@ const createAgente = async (data) => {
   try {
     console.log(data)
     let query = `INSERT INTO agentes (id_agente, nombre) VALUES (?,?)`;
-    let nombre = [data.primer_nombre, data.segundo_nombre, data.apellido_paterno, data.apellido_materno].filter(item => !!item).join(" ");
+    let nombre = [data.name, data.secondname, data.lastname1, data.lastname2].filter(item => !!item).join(" ");
+    console.log("hola")
+    console.log(nombre);
     let params = [data.id, nombre];
     let response = await executeQuery(query, params);
     console.log(response);
