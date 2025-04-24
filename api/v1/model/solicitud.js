@@ -184,7 +184,7 @@ so.check_in,
 so.check_out,
 so.room,
 so.total,
-so.status
+so.status,
 so.id_usuario_generador,
 b.id_booking, 
 h.codigo_reservacion_hotel, 
