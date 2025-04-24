@@ -171,11 +171,45 @@ ORDER BY s.created_at DESC;`;
   }
 };
 
-const getSolicitudesClientWithViajero = async (user_id) => {
+const getSolicitudesClientWithViajero = async (id) => {
   try {
-    let query = `
-      select * from vw_viajeros_con_empresas where id_agente = ?;`;
-    let response = await executeQuery(query, [user_id]);
+    const query = `select 
+s.id_servicio,
+s.created_at,
+s.is_credito,
+so.id_solicitud,
+so.confirmation_code,
+so.hotel,
+so.check_in,
+so.check_out,
+so.room,
+so.total,
+so.id_usuario_generador,
+b.id_booking, 
+h.codigo_reservacion_hotel, 
+p.id_pago, 
+p.pendiente_por_cobrar,
+p.monto_a_credito,
+fp.id_factura,
+vw.primer_nombre,
+vw.apellido_paterno
+from solicitudes as so
+LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
+LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
+LEFT JOIN hospedajes as h ON b.id_booking = h.id_booking
+LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
+LEFT JOIN facturas_pagos as fp ON p.id_pago = fp.id_pago
+LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
+WHERE id_usuario_generador in (
+	select id_empresa 
+	from empresas_agentes 
+	where id_agente = ?
+) or id_usuario_generador = ?
+GROUP BY so.id_solicitud
+ORDER BY s.created_at DESC;`;
+
+    // Ejecutar el procedimiento almacenado
+    const response = await executeQuery(query, [id, id]);
 
     return response;
   } catch (error) {
