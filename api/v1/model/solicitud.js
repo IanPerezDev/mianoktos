@@ -184,6 +184,7 @@ so.check_in,
 so.check_out,
 so.room,
 so.total,
+so.status
 so.id_usuario_generador,
 b.id_booking, 
 h.codigo_reservacion_hotel, 
@@ -192,13 +193,15 @@ p.pendiente_por_cobrar,
 p.monto_a_credito,
 fp.id_factura,
 vw.primer_nombre,
-vw.apellido_paterno
+vw.apellido_paterno,
+f.id_facturama
 from solicitudes as so
 LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
 LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
 LEFT JOIN hospedajes as h ON b.id_booking = h.id_booking
 LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
 LEFT JOIN facturas_pagos as fp ON p.id_pago = fp.id_pago
+LEFT JOIN facturas as f ON fp.id_factura = f.id_factura
 LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
 WHERE id_usuario_generador in (
 	select id_empresa 
