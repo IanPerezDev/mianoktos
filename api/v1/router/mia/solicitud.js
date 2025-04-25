@@ -8,6 +8,7 @@ router.get("/", controller.read)
 router.get("/client", controller.readClient)
 router.get("/id", controller.readSolicitudById)
 router.get("/viajero", controller.getViajeroFromSolicitud)
+router.get("/viajeroAgente", controller.getViajeroAgenteFromSolicitud)
 router.get("/withviajero", controller.readSolicitudByIdWithViajero)
 
 module.exports = router

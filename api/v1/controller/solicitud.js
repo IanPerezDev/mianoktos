@@ -60,11 +60,23 @@ const getViajeroFromSolicitud = async (req, res) => {
   }
 }
 
+const getViajeroAgenteFromSolicitud = async (req, res) => {
+  try {
+    const { id } = req.query
+    let solicitudes = await model.getViajeroAgenteSolicitud(id)
+    res.status(200).json(solicitudes)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error', details: error })
+  }
+}
+
 module.exports = {
   create,
   read,
   readClient,
   readSolicitudById,
   readSolicitudByIdWithViajero,
-  getViajeroFromSolicitud
+  getViajeroFromSolicitud,
+  getViajeroAgenteFromSolicitud
 }

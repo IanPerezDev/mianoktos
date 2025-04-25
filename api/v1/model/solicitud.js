@@ -64,18 +64,19 @@ const createSolicitudes = async (body) => {
             // Correct destructuring to match incoming data keys
             const {
               confirmation_code,
-              id_viajero,
+              id_agente,
               hotel,
               check_in,
               check_out,
               room,
               total,
               status,
+              id_viajero,
             } = solicitud;
             return [
               id_solicitud,
               id_servicio,
-              id_viajero,
+              id_agente,
               confirmation_code,
               id_viajero,
               hotel,
@@ -151,14 +152,15 @@ p.pendiente_por_cobrar,
 p.monto_a_credito,
 fp.id_factura,
 vw.primer_nombre,
-vw.apellido_paterno
+vw.apellido_paterno,
+vw.id_viajero
 from solicitudes as so
 LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
 LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
 LEFT JOIN hospedajes as h ON b.id_booking = h.id_booking
 LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
 LEFT JOIN facturas_pagos as fp ON p.id_pago = fp.id_pago
-LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
+LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_viajero = so.id_viajero
 WHERE so.id_solicitud = ?
 GROUP BY so.id_solicitud
 ORDER BY s.created_at DESC;`;
@@ -202,7 +204,7 @@ LEFT JOIN hospedajes as h ON b.id_booking = h.id_booking
 LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
 LEFT JOIN facturas_pagos as fp ON p.id_pago = fp.id_pago
 LEFT JOIN facturas as f ON fp.id_factura = f.id_factura
-LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
+LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_viajero = so.id_viajero
 WHERE id_usuario_generador in (
 	select id_empresa 
 	from empresas_agentes 
@@ -259,6 +261,17 @@ ORDER BY servicios.created_at DESC;`;
 
 const getViajeroSolicitud = async (id_agente) => {
   try {
+    let query = `select * from viajeros_con_empresas_con_agentes where id_viajero = ?; `;
+    let params = [id_agente];
+    let response = await executeQuery(query, params);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getViajeroAgenteSolicitud = async (id_agente) => {
+  try {
     let query = `select * from viajeros_con_empresas_con_agentes where id_agente = ?; `;
     let params = [id_agente];
     let response = await executeQuery(query, params);
@@ -276,4 +289,5 @@ module.exports = {
   getSolicitudesClient,
   getSolicitudesClientWithViajero,
   getSolicitudById,
+  getViajeroAgenteSolicitud,
 };
