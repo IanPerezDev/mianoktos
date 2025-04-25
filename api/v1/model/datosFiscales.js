@@ -18,7 +18,38 @@ const createDatosFiscales = async (datosFiscales) => {
       datosFiscales.colonia,
       datosFiscales.municipio,
       datosFiscales.codigo_postal_fiscal,
-      datosFiscales.regimen_fiscal
+      datosFiscales.regimen_fiscal,
+    ];
+
+    const response = await executeQuery(query, params);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+const updateDatosFiscales = async (datosFiscales) => {
+  try {
+    const query = `
+UPDATE datos_fiscales
+SET
+  rfc = ?, 
+  calle = ?, 
+  estado = ?, 
+  colonia = ?, 
+  municipio = ?, 
+  codigo_postal_fiscal = ?, 
+  regimen_fiscal = ?
+WHERE id_empresa = ?;`;
+
+    const params = [
+      datosFiscales.rfc,
+      datosFiscales.calle,
+      datosFiscales.estado,
+      datosFiscales.colonia,
+      datosFiscales.municipio,
+      datosFiscales.codigo_postal_fiscal,
+      datosFiscales.regimen_fiscal,
+      datosFiscales.id_empresa,
     ];
 
     const response = await executeQuery(query, params);
@@ -39,7 +70,8 @@ const readDatosFiscales = async () => {
 };
 const readDatosFiscalesById = async (id) => {
   try {
-    const query = "select * from vw_datos_fiscales_detalle where id_datos_fiscales = ?";
+    const query =
+      "select * from vw_datos_fiscales_detalle where id_datos_fiscales = ?";
     const response = await executeQuery(query, [id]);
     return response;
   } catch (error) {
@@ -50,5 +82,6 @@ const readDatosFiscalesById = async (id) => {
 module.exports = {
   createDatosFiscales,
   readDatosFiscales,
-  readDatosFiscalesById
+  readDatosFiscalesById,
+  updateDatosFiscales,
 };
