@@ -217,26 +217,26 @@ const insertarReserva = async (body) => {
   try {
     const id_booking = `boo-${uuidv4()}`;
     const id_hospedaje = `hos-${uuidv4()}`;
-    const { solicitud } = body;
     const {
-      id_servicio,
+      solicitud,
       estado,
+      id_viajero,
+      costo_subtotal,
+      costo_total,
+      costo_impuestos,
       check_in,
       check_out,
-      id_viajero,
       nombre_hotel,
       total,
       subtotal,
       impuestos,
       tipo_cuarto,
       noches,
-      costo_subtotal,
-      costo_total,
-      costo_impuestos,
-      codigo_reservacion_hotel,
       items,
-      id_solicitud,
-    } = solicitud;
+      codigo_reservacion_hotel,
+    } = body;
+
+    const { id_servicio, id_solicitud } = solicitud;
     const query = `INSERT INTO bookings (id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, fecha_pago_proveedor, fecha_limite_cancelacion, id_solicitud ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);`;
     const params = [
       id_booking,
