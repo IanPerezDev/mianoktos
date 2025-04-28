@@ -213,10 +213,11 @@ const createReservaFromOperaciones = async (body) => {
   }
 };
 
-const insertarReserva = async (solicitud) => {
+const insertarReserva = async (body) => {
   try {
     const id_booking = `boo-${uuidv4()}`;
     const id_hospedaje = `hos-${uuidv4()}`;
+    const { solicitud } = body;
     const {
       id_servicio,
       estado,
@@ -236,7 +237,6 @@ const insertarReserva = async (solicitud) => {
       items,
       id_solicitud,
     } = solicitud;
-    console.log("Params Items:", solicitud);
     const query = `INSERT INTO bookings (id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, fecha_pago_proveedor, fecha_limite_cancelacion, id_solicitud ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);`;
     const params = [
       id_booking,
