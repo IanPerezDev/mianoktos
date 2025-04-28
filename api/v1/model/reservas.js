@@ -588,7 +588,7 @@ WHERE b.id_booking = ?;`;
     // Ejecutar el procedimiento almacenado
     const response = await executeQuery(query, [id]);
 
-    return response; // Retorna el resultado de la ejecución
+    return agruparDatos(response); // Retorna el resultado de la ejecución
   } catch (error) {
     throw error; // Lanza el error para que puedas manejarlo donde llames la función
   }
@@ -602,3 +602,116 @@ module.exports = {
   createReservaFromOperaciones,
   getReservaAll,
 };
+
+function agruparDatos(data) {
+  if (!data || data.length === 0) return null;
+
+  const base = data[0]; // Todos comparten la mayoría de datos
+
+  // Servicios
+  const servicio = {
+    id_servicio: base.id_servicio,
+    total: base.total,
+    subtotal: base.costo_subtotal,
+    impuestos: base.costo_impuestos,
+    otros_impuestos: base.otros_impuestos,
+    is_credito: base.is_credito,
+    fecha_limite_pago: base.fecha_limite_pago,
+  };
+
+  // Booking
+  const booking = {
+    id_booking: base.id_booking,
+    id_servicio: base.id_servicio,
+    check_in: base.check_in,
+    check_out: base.check_out,
+    total: base.total,
+    subtotal: base.subtotal,
+    impuestos: base.impuestos,
+    estado: base.estado,
+    fecha_pago_proveedor: base.fecha_pago_proveedor,
+    costo_total: base.costo_total,
+    costo_subtotal: base.costo_subtotal,
+    costo_impuestos: base.costo_impuestos,
+    fecha_limite_cancelacion: base.fecha_limite_cancelacion,
+    created_at: base.created_at,
+    updated_at: base.updated_at,
+    id_solicitud: base.id_solicitud,
+  };
+
+  // Hospedaje
+  const hospedaje = {
+    id_hospedaje: base.id_hospedaje,
+    id_booking: base.id_booking,
+    id_hotel: base.id_hotel,
+    nombre_hotel: base.nombre_hotel,
+    cadena_hotel: base.cadena_hotel,
+    codigo_reservacion_hotel: base.codigo_reservacion_hotel,
+    tipo_cuarto: base.tipo_cuarto,
+    noches: base.noches,
+    is_rembolsable: base.is_rembolsable,
+    monto_penalizacion: base.monto_penalizacion,
+    conciliado: base.conciliado,
+    credito: base.credito,
+    created_at: base.created_at,
+    updated_at: base.updated_at,
+  };
+
+  // Agrupar impuestos por item
+  const itemsMap = new Map();
+
+  data.forEach((row) => {
+    const id = row.id_item;
+
+    if (!itemsMap.has(id)) {
+      itemsMap.set(id, {
+        id_item: id,
+        id_catalogo_item: row.id_catalogo_item,
+        id_factura: row.id_factura,
+        total: row.total,
+        subtotal: row.subtotal,
+        impuestos: row.impuestos,
+        is_facturado: row.is_facturado,
+        fecha_uso: row.fecha_uso,
+        id_hospedaje: row.id_hospedaje,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        costo_total: row.costo_total,
+        costo_subtotal: row.costo_subtotal,
+        costo_impuestos: row.costo_impuestos,
+        saldo: row.saldo,
+        costo_iva: row.costo_iva,
+        impuestos_detalle: [],
+        pagos: [],
+      });
+    }
+
+    // Agregar impuesto
+    if (row.id_impuesto !== undefined && row.id_impuesto !== null) {
+      itemsMap.get(id).impuestos_detalle.push({
+        id_impuesto: row.id_impuesto,
+        id_item: row.id_item,
+        base: row.base,
+        total: row.total,
+      });
+    }
+
+    // Agregar pago
+    if (row.id_pago !== undefined && row.id_pago !== null) {
+      itemsMap.get(id).pagos.push({
+        id_item: row.id_item,
+        id_pago: row.id_pago,
+        monto: row.monto,
+      });
+    }
+  });
+
+  const items = Array.from(itemsMap.values());
+
+  return {
+    booking,
+    hospedaje,
+    servicio,
+    items,
+  };
+}
