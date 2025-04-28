@@ -108,7 +108,25 @@ const createSolicitudes = async (body) => {
 
 const getSolicitudes = async () => {
   try {
-    let query = `select solicitudes.*, ROUND(solicitudes.total, 2) as solicitud_total, servicios.created_at from servicios left join solicitudes on servicios.id_servicio = solicitudes.id_servicio order by created_at desc;`;
+    let query = `select 
+s.id_servicio,
+s.created_at,
+s.is_credito,
+so.*,
+b.id_booking,  
+p.id_pago, 
+p.pendiente_por_cobrar,
+p.monto_a_credito,
+vw.primer_nombre,
+vw.apellido_paterno
+from solicitudes as so
+LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
+LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
+LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
+LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
+WHERE p.id_pago IS NOT NULL
+GROUP BY so.id_solicitud
+ORDER BY s.created_at DESC;`;
     let response = await executeQuery(query);
     console.log(response);
 
