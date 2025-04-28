@@ -533,7 +533,7 @@ ORDER BY s.created_at DESC;`;
     throw error; // Lanza el error para que puedas manejarlo donde llames la función
   }
 };
-const getReservaAll = async (id) => {
+const getReservaAll = async () => {
   try {
     const query = `select 
 s.id_servicio,
@@ -567,7 +567,7 @@ GROUP BY so.id_solicitud
 ORDER BY s.created_at DESC;`;
 
     // Ejecutar el procedimiento almacenado
-    const response = await executeQuery(query, [id, id]);
+    const response = await executeQuery(query);
 
     return response; // Retorna el resultado de la ejecución
   } catch (error) {

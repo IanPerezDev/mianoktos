@@ -52,7 +52,7 @@ const readById = async (req, res) => {
 };
 const readAll = async (req, res) => {
   try {
-    let response = await model.getReservaAll(req.query.id);
+    let response = await model.getReservaAll();
     res.status(201).json(response);
   } catch (error) {
     console.error(error);
