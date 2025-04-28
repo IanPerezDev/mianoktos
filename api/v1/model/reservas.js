@@ -697,7 +697,11 @@ function agruparDatos(data) {
     }
 
     // Agregar pago
-    if (row.id_pago !== undefined && row.id_pago !== null) {
+    if (
+      row.id_pago !== undefined &&
+      row.id_pago !== null &&
+      itemsMap.get(id).pagos[0].id_pago != row.id_pago
+    ) {
       itemsMap.get(id).pagos.push({
         id_item: row.id_item,
         id_pago: row.id_pago,
