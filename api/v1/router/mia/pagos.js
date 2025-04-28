@@ -11,6 +11,7 @@ router.post("/agente", controller.updateCreditAgent)
 router.post("/empresa", controller.updateCreditEmpresa)
 router.get("/pagosAgente", controller.getPagosAgente)
 router.get("/pendientesAgente", controller.getPendientesAgente)
+router.get("/allPendientes", controller.getAllPendientes)
 router.post("/credito", middleware.validateParams(["id_servicio", "monto_a_credito", "credito_restante","responsable_pago_agente", "fecha_creacion", "pago_por_credito", "pendiente_por_cobrar", "total", "subtotal", "impuestos", "tipo_de_pago","concepto"]), controller.pagoPorCredito)
 
 module.exports = router

@@ -42,6 +42,16 @@ const getPendientesAgente = async (req, res) => {
   }
 };
 
+const getAllPendientes = async (req, res) => {
+  try {
+    const pagos = await model.getAllPendientes();
+    res.status(200).json(pagos);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error en el servidor", details: error });
+  }
+};
+
 const getEmpresaCredito = async (req, res) => {
   try {
     const response = await model.getCreditoEmpresa(req.query);
@@ -108,4 +118,5 @@ module.exports = {
   pagoPorCredito,
   getPagosAgente,
   getPendientesAgente,
+  getAllPendientes,
 };
