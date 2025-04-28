@@ -562,7 +562,7 @@ LEFT JOIN hospedajes as h ON b.id_booking = h.id_booking
 LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
 LEFT JOIN facturas_pagos as fp ON p.id_pago = fp.id_pago
 LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
-WHERE p.id_pago IS NOT NULL
+WHERE b.id_booking IS NOT NULL
 GROUP BY so.id_solicitud
 ORDER BY s.created_at DESC;`;
 
