@@ -575,10 +575,30 @@ ORDER BY s.created_at DESC;`;
   }
 };
 
+const getOnlyReservaByID = async (id) => {
+  try {
+    const query = `select * from bookings as b
+LEFT JOIN servicios as s ON s.id_servicio = b.id_servicio
+LEFT JOIN hospedajes as h ON h.id_booking = b.id_booking
+LEFT JOIN items as i ON i.id_hospedaje = h.id_hospedaje
+LEFT JOIN impuestos_items as ii ON ii.id_item = i.id_item
+LEFT JOIN items_pagos as ip ON ip.id_item = i.id_item
+WHERE b.id_booking = ?;`;
+
+    // Ejecutar el procedimiento almacenado
+    const response = await executeQuery(query, [id]);
+
+    return response; // Retorna el resultado de la ejecución
+  } catch (error) {
+    throw error; // Lanza el error para que puedas manejarlo donde llames la función
+  }
+};
+
 module.exports = {
   insertarReserva,
   getReserva,
   getReservaById,
+  getOnlyReservaByID,
   createReservaFromOperaciones,
   getReservaAll,
 };

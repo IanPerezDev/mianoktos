@@ -50,6 +50,17 @@ const readById = async (req, res) => {
       .json({ error: "Internal Server Error", details: error.message });
   }
 };
+const readOnlyById = async (req, res) => {
+  try {
+    let response = await model.getOnlyReservaByID(req.query.id);
+    res.status(201).json(response);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+};
 const readAll = async (req, res) => {
   try {
     let response = await model.getReservaAll();
@@ -68,4 +79,5 @@ module.exports = {
   readById,
   readAll,
   createFromOperaciones,
+  readOnlyById,
 };

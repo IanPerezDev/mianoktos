@@ -33,5 +33,6 @@ router.post(
 router.get("/", controller.read);
 router.get("/agente", controller.readById);
 router.get("/all", controller.readAll);
+router.get("/id", controller.readOnlyById);
 
 module.exports = router;
