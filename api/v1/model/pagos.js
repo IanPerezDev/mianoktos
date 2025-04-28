@@ -85,6 +85,17 @@ const getPendientes = async (id_agente) => {
   }
 };
 
+const getAllPendientes = async () => {
+  try {
+    const query = "SELECT * FROM vista_creditos_completos;";
+    const response = await executeQuery(query);
+    console.log(response);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const getCreditoEmpresa = async (body) => {
   try {
     console.log(body)
@@ -239,4 +250,5 @@ module.exports = {
   pagoConCredito,
   getPagos,
   getPendientes,
+  getAllPendientes,
 };
