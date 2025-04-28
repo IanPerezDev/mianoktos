@@ -700,7 +700,7 @@ function agruparDatos(data) {
     if (
       row.id_pago !== undefined &&
       row.id_pago !== null &&
-      itemsMap.get(id).pagos[0].id_pago != row.id_pago
+      itemsMap.get(id).pagos.length == 0
     ) {
       itemsMap.get(id).pagos.push({
         id_item: row.id_item,
