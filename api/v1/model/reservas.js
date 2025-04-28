@@ -577,7 +577,7 @@ ORDER BY s.created_at DESC;`;
 
 const getOnlyReservaByID = async (id) => {
   try {
-    const query = `select * from bookings as b
+    const query = `select *, b.total as total_client, b.subtotal as subtotal_client, b.impuestos as impuestos_client from bookings as b
 LEFT JOIN servicios as s ON s.id_servicio = b.id_servicio
 LEFT JOIN hospedajes as h ON h.id_booking = b.id_booking
 LEFT JOIN items as i ON i.id_hospedaje = h.id_hospedaje
@@ -611,8 +611,8 @@ function agruparDatos(data) {
   // Servicios
   const servicio = {
     id_servicio: base.id_servicio,
-    total: base.total,
-    subtotal: base.costo_subtotal,
+    total: base.total_client,
+    subtotal: base.costo_subtotal_client,
     impuestos: base.costo_impuestos,
     otros_impuestos: base.otros_impuestos,
     is_credito: base.is_credito,
@@ -625,9 +625,9 @@ function agruparDatos(data) {
     id_servicio: base.id_servicio,
     check_in: base.check_in,
     check_out: base.check_out,
-    total: base.total,
-    subtotal: base.subtotal,
-    impuestos: base.impuestos,
+    total: base.total_client,
+    subtotal: base.subtotal_client,
+    impuestos: base.impuestos_client,
     estado: base.estado,
     fecha_pago_proveedor: base.fecha_pago_proveedor,
     costo_total: base.costo_total,
