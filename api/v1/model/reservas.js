@@ -429,7 +429,7 @@ const insertarReserva = async (body) => {
                 item.taxes.forEach((tax) => {
                   taxesData.push({
                     id_item: item.id_item,
-                    id_impuesto: 1, //Checar bien el cambio
+                    id_impuesto: tax.id_impuesto, //Checar bien el cambio
                     base: tax.base,
                     total: tax.total,
                   });
