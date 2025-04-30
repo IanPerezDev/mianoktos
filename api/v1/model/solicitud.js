@@ -194,6 +194,7 @@ ORDER BY s.created_at DESC;`;
 const getSolicitudesClientWithViajero = async (id) => {
   try {
     const query = `select 
+p_c.id_credito,
 s.id_servicio,
 s.created_at,
 s.is_credito,
@@ -217,6 +218,7 @@ vw.apellido_paterno,
 f.id_facturama
 from solicitudes as so
 LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
+LEFT JOIN pagos_credito as p_c ON s.id_servicio = p_c.id_servicio
 LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
 LEFT JOIN hospedajes as h ON b.id_booking = h.id_booking
 LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
