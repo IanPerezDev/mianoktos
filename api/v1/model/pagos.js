@@ -169,6 +169,17 @@ const editCreditoAgente = async (body) => {
   }
 }
 
+const getAllPagos = async () => {
+  try {
+    const query = `SELECT * from vw_pagos_general`;
+    const response = await executeQuery(query);
+    //console.log(query);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const pagoConCredito = async (body) => {
   try {
     const {
@@ -251,4 +262,5 @@ module.exports = {
   getPagos,
   getPendientes,
   getAllPendientes,
+  getAllPagos,
 };

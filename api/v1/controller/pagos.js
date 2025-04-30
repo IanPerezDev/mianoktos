@@ -31,6 +31,16 @@ const getPagosAgente = async (req, res) => {
   }
 };
 
+const getAllPagos = async (req, res) => {
+  try {
+    const pagos = await model.getAllPagos();
+    res.status(200).json(pagos);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error en el servidor", details: error });
+  }
+};
+
 const getPendientesAgente = async (req, res) => {
   try {
     const { id_agente } = req.query;
@@ -119,4 +129,5 @@ module.exports = {
   getPagosAgente,
   getPendientesAgente,
   getAllPendientes,
+  getAllPagos,
 };
