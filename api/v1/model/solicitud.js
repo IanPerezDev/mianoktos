@@ -195,6 +195,7 @@ const getSolicitudesClientWithViajero = async (id) => {
   try {
     const query = `select 
 p_c.id_credito,
+p_c.pendiente_por_cobrar,
 s.id_servicio,
 s.created_at,
 s.is_credito,
@@ -209,8 +210,7 @@ so.status,
 so.id_usuario_generador,
 b.id_booking, 
 h.codigo_reservacion_hotel, 
-p.id_pago, 
-p.pendiente_por_cobrar,
+p.id_pago,
 p.monto_a_credito,
 fp.id_factura,
 vw.primer_nombre,
