@@ -301,6 +301,91 @@ const getViajeroAgenteSolicitud = async (id_agente) => {
   }
 };
 
+const getSolicitudesConsultas = async (user_id) => {
+  try {
+    let query = `
+SELECT
+  solicitudes.id_solicitud,
+  solicitudes.id_servicio,
+  solicitudes.confirmation_code,
+  solicitudes.id_viajero,
+  solicitudes.hotel,
+  solicitudes.check_in,
+  solicitudes.check_out,
+  solicitudes.room,
+  solicitudes.total,
+  solicitudes.status,
+  solicitudes.id_usuario_generador,
+  ROUND(solicitudes.total, 2) AS solicitud_total,
+  servicios.created_at,
+  hospedajes.nombre_hotel,
+  IF(bookings.id_solicitud IS NOT NULL, TRUE, FALSE) AS is_booking,
+
+  -- JSON con todos los pagos relacionados a esta solicitud
+  (
+    SELECT JSON_ARRAYAGG(
+      JSON_OBJECT(
+        'id_pago', p.id_pago,
+        'monto', p.monto,
+        'monto_a_credito', p.monto_a_credito,
+        'responsable_pago_empresa', p.responsable_pago_empresa,
+        'responsable_pago_agente', p.responsable_pago_agente,
+        'fecha_creacion', p.created_at,
+        'pago_por_credito', p.pago_por_credito,
+        'pendiente_por_cobrar', p.pendiente_por_cobrar,
+        'subtotal', p.subtotal,
+        'impuestos', p.impuestos,
+        'updated_at', p.updated_at,
+        'padre', p.padre,
+        'concepto', p.concepto,
+        'referencia', p.referencia,
+        'fecha_pago', p.fecha_pago,
+        'spei', p.spei,
+        'banco', p.banco,
+        'autorizacion_stripe', p.autorizacion_stripe,
+        'last_digits', p.last_digits,
+        'fecha_transaccion', p.fecha_transaccion,
+        'currency', p.currency,
+        'metodo_de_pago', p.metodo_de_pago,
+        'tipo_de_tarjeta', p.tipo_de_tarjeta,
+        'tipo_de_pago', p.tipo_de_pago
+      )
+    )
+    FROM pagos p
+    WHERE p.id_servicio = solicitudes.id_servicio
+  ) AS pagos,
+
+  -- JSON con todas las facturas relacionadas a los pagos de esta solicitud
+  (
+    SELECT JSON_ARRAYAGG(
+      JSON_OBJECT(
+        'id_factura', f.id_factura,
+        'id_facturama', f.id_facturama,
+        'fecha_emision', f.created_at
+      )
+    )
+    FROM pagos p
+    JOIN facturas_pagos fp ON p.id_pago = fp.id_pago
+    JOIN facturas f ON fp.id_factura = f.id_factura
+    WHERE p.id_servicio = solicitudes.id_servicio
+  ) AS facturas
+
+FROM servicios
+LEFT JOIN solicitudes ON servicios.id_servicio = solicitudes.id_servicio
+LEFT JOIN bookings ON solicitudes.id_solicitud = bookings.id_solicitud
+LEFT JOIN hospedajes ON bookings.id_booking = hospedajes.id_booking
+WHERE solicitudes.id_solicitud IS NOT NULL
+AND solicitudes.id_usuario_generador = ?
+GROUP BY solicitudes.id_solicitud
+ORDER BY servicios.created_at DESC;`;
+    let response = await executeQuery(query, [user_id]);
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   createSolicitudYTicket,
   getViajeroSolicitud,
@@ -310,4 +395,5 @@ module.exports = {
   getSolicitudesClientWithViajero,
   getSolicitudById,
   getViajeroAgenteSolicitud,
+  getSolicitudesConsultas,
 };

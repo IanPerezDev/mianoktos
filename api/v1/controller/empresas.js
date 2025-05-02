@@ -20,6 +20,16 @@ const update = async (req, res) => {
   }
 }
 
+const deleteEmpresaById = async (req, res) => {
+  try {
+    const empresa = await model.deleteEmpresa(req.query.id_empresa)
+    res.status(201).json({ message: "Empresa eliminada correctamente", data: empresa })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
 
 
 const read = async (req, res) => {
@@ -46,4 +56,5 @@ module.exports = {
   read,
   readbyId,
   update,
+  deleteEmpresaById,
 }
