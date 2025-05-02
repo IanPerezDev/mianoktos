@@ -9,6 +9,7 @@ router.get("/get-viajeros-by-agente/:id_agente", controller.get_viajeros_by_id_a
 router.get("/get-primer-viajero-empresa/:id_agente", controller.primeros_empresa_viajero)
 router.get("/id", controller.readById)
 router.put("/", controller.update)
+router.delete("/", controller.deleteViajeroById)
 
 router.get("/agente", async (req, res) => {
   try {

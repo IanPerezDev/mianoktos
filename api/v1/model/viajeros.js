@@ -138,9 +138,23 @@ const readViajeroById = async (id) => {
   }
 };
 
+const deleteViajero = async (id_viajero) => {
+  try {
+    const query = "DELETE FROM viajeros WHERE id_viajero = ?;";
+    const response = executeQuery(query, [id_viajero]);
+    return {
+      success: true,
+      id_viajero,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   readViajero,
   createViajero,
   readViajeroById,
   updateViajero,
+  deleteViajero,
 };
