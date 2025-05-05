@@ -91,6 +91,32 @@ const updateEmpresa = async (empresa) => {
   }
 };
 
+const deleteEmpresa = async (id_empresa) => {
+  try {
+    const query1 = "DELETE FROM datos_fiscales WHERE id_empresa = ?;";
+    await executeTransaction(query1, [id_empresa], async (result, connection) => {
+      
+      const deleteAgentes = "DELETE FROM empresas_agentes WHERE id_empresa = ?;";
+      await connection.execute(deleteAgentes, [id_empresa]);
+      // Eliminar la empresa
+      const query2 = "DELETE FROM empresas WHERE id_empresa = ?;";
+      await connection.execute(query2, [id_empresa]);
+    });
+
+    return {
+      success: true,
+      id_empresa,
+    };
+  } catch (error) {
+    console.error("Error al eliminar empresa:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+
 
 
 const getEmpresas = async () => {
@@ -117,4 +143,5 @@ module.exports = {
   getEmpresas,
   getEmpresaById, 
   updateEmpresa,
+  deleteEmpresa,
 }

@@ -6,8 +6,8 @@ const createDatosFiscales = async (datosFiscales) => {
     const id_datos_fiscales = `df-${uuidv4()}`;
     const query = `
       INSERT INTO datos_fiscales 
-      (id_datos_fiscales, id_empresa, rfc, calle, estado, colonia, municipio, codigo_postal_fiscal, regimen_fiscal) 
-      VALUES (?,?,?,?,?,?,?,?,?)`;
+      (id_datos_fiscales, id_empresa, rfc, calle, estado, colonia, municipio, codigo_postal_fiscal, regimen_fiscal, razon_social) 
+      VALUES (?,?,?,?,?,?,?,?,?,?)`;
 
     const params = [
       id_datos_fiscales,
@@ -19,6 +19,7 @@ const createDatosFiscales = async (datosFiscales) => {
       datosFiscales.municipio,
       datosFiscales.codigo_postal_fiscal,
       datosFiscales.regimen_fiscal,
+      datosFiscales.razon_social,
     ];
 
     const response = await executeQuery(query, params);
@@ -38,7 +39,8 @@ SET
   colonia = ?, 
   municipio = ?, 
   codigo_postal_fiscal = ?, 
-  regimen_fiscal = ?
+  regimen_fiscal = ?,
+  razon_social = ?
 WHERE id_empresa = ?;`;
 
     const params = [
@@ -49,6 +51,7 @@ WHERE id_empresa = ?;`;
       datosFiscales.municipio,
       datosFiscales.codigo_postal_fiscal,
       datosFiscales.regimen_fiscal,
+      datosFiscales.razon_social,
       datosFiscales.id_empresa,
     ];
 

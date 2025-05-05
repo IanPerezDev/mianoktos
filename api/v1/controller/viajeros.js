@@ -41,6 +41,16 @@ const readById = async (req, res) => {
   }
 }
 
+const deleteViajeroById = async (req, res) => {
+  try {
+    const viajeros = await model.deleteViajero(req.query.id_viajero)
+    res.status(201).json({ message: "Viajero eliminado correctamente", data: viajeros })
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
 const get_viajeros_by_id_agente = async (req,res) => {
   const {id_agente} = req.params;
   try {
@@ -75,5 +85,5 @@ const primeros_empresa_viajero = async (req,res) => {
 }
 module.exports = {
   create,
-  read, get_viajeros_by_id_agente,primeros_empresa_viajero,  readById, update,
+  read, get_viajeros_by_id_agente,primeros_empresa_viajero,  readById, update, deleteViajeroById,
 }
