@@ -32,6 +32,7 @@ const createSolicitudYTicket = async (solicitud) => {
 const createSolicitudes = async (body) => {
   try {
     const { solicitudes } = body;
+    console.log(solicitudes);
     const id_servicio = `ser-${uuidv4()}`;
     const query_servicio = `INSERT INTO servicios (id_servicio, total, subtotal, impuestos, is_credito, otros_impuestos, fecha_limite_pago) VALUES (?,?,?,?,?,?,?);`;
     const total = solicitudes.reduce(
@@ -55,8 +56,8 @@ const createSolicitudes = async (body) => {
       params_servicio,
       async (results, connection) => {
         try {
-          const query_solicitudes = `INSERT INTO solicitudes (id_solicitud, id_servicio, id_usuario_generador, confirmation_code, id_viajero, hotel, check_in, check_out, room, total, status) VALUES ${solicitudes
-            .map(() => "(?,?,?,?,?,?,?,?,?,?,?)")
+          const query_solicitudes = `INSERT INTO solicitudes (id_solicitud, id_servicio, id_usuario_generador, confirmation_code, id_viajero, hotel, check_in, check_out, room, total, status, nombre_viajero) VALUES ${solicitudes
+            .map(() => "(?,?,?,?,?,?,?,?,?,?,?,?)")
             .join(",")};`;
 
           const params_solicitudes_map = solicitudes.map((solicitud) => {
@@ -72,6 +73,7 @@ const createSolicitudes = async (body) => {
               total,
               status,
               id_viajero,
+              nombre_viajero,
             } = solicitud;
             return [
               id_solicitud,
@@ -85,6 +87,7 @@ const createSolicitudes = async (body) => {
               room,
               total,
               status,
+              nombre_viajero,
             ];
           });
           const params_solicitudes_flat = params_solicitudes_map.flat();
@@ -163,6 +166,7 @@ so.check_out,
 so.room,
 so.total,
 so.id_usuario_generador,
+so.nombre_viajero,
 b.id_booking, 
 h.codigo_reservacion_hotel, 
 p.id_pago, 
@@ -207,6 +211,7 @@ so.check_out,
 so.room,
 so.total,
 so.status,
+so.nombre_viajero,
 so.id_usuario_generador,
 b.id_booking, 
 h.codigo_reservacion_hotel, 
