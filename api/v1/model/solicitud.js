@@ -117,14 +117,16 @@ s.created_at,
 s.is_credito,
 so.*,
 b.id_booking,  
-p.id_pago, 
-p.pendiente_por_cobrar,
+p.id_pago,
+p_c.id_credito, 
+p_c.pendiente_por_cobrar,
 p.monto_a_credito,
 vw.primer_nombre,
 vw.apellido_paterno
 from solicitudes as so
 LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
 LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
+LEFT JOIN pagos_credito as p_c ON s.id_servicio = p_c.id_servicio
 LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
 LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
 WHERE p.id_pago IS NOT NULL
@@ -389,7 +391,7 @@ ORDER BY servicios.created_at DESC;`;
   } catch (error) {
     throw error;
   }
-}
+};
 
 module.exports = {
   createSolicitudYTicket,
