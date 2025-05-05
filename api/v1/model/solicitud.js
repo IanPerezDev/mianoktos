@@ -129,7 +129,7 @@ LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
 LEFT JOIN pagos_credito as p_c ON s.id_servicio = p_c.id_servicio
 LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
 LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
-WHERE p.id_pago IS NOT NULL
+WHERE p.id_pago IS NOT NULL OR p_c.id_credito IS NOT NULL 
 GROUP BY so.id_solicitud
 ORDER BY s.created_at DESC;`;
     let response = await executeQuery(query);
