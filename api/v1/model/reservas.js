@@ -234,6 +234,7 @@ const insertarReserva = async (body) => {
       noches,
       items,
       codigo_reservacion_hotel,
+      comments,
     } = body;
 
     const { id_servicio, id_solicitud } = solicitud;
@@ -260,7 +261,7 @@ const insertarReserva = async (body) => {
       params,
       async (results, connection) => {
         try {
-          const query_hospedaje = `INSERT INTO hospedajes (id_hospedaje, id_booking, nombre_hotel, cadena_hotel, codigo_reservacion_hotel, tipo_cuarto, noches, is_rembolsable, monto_penalizacion, conciliado, credito) VALUES (?,?,?,?,?,?,?,?,?,?,?);`;
+          const query_hospedaje = `INSERT INTO hospedajes (id_hospedaje, id_booking, nombre_hotel, cadena_hotel, codigo_reservacion_hotel, tipo_cuarto, noches, is_rembolsable, monto_penalizacion, conciliado, credito, comments) VALUES (?,?,?,?,?,?,?,?,?,?,?, ?);`;
           const params_hospedaje = [
             id_hospedaje,
             id_booking,
@@ -273,6 +274,7 @@ const insertarReserva = async (body) => {
             null,
             null,
             null,
+            comments,
           ];
 
           const response_hospedaje = await connection.execute(
