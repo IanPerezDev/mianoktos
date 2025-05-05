@@ -49,7 +49,7 @@ const getAgenteEmpresa = async (id_agente) => {
 const getEmpresasDatosFiscales = async (id_agente) => {
   try {
     const query =
-      "SELECT * FROM vw_datos_fiscales_detalle WHERE id_agente = ? group by id_empresa order by datos_fiscales_updated_at desc";
+      "SELECT * FROM vw_datos_fiscales_detalle WHERE id_agente = ? and active = 1 group by id_empresa order by datos_fiscales_updated_at desc";
     const params = [id_agente];
     const response = await executeQuery(query, params);
     console.log("hola");
