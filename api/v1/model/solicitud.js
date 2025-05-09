@@ -324,9 +324,12 @@ SELECT
   solicitudes.total,
   solicitudes.status,
   solicitudes.id_usuario_generador,
+  solicitudes.nombre_viajero,
   ROUND(solicitudes.total, 2) AS solicitud_total,
   servicios.created_at,
   hospedajes.nombre_hotel,
+  hospedajes.codigo_reservacion_hotel,
+  viajeros.*,
   IF(bookings.id_solicitud IS NOT NULL, TRUE, FALSE) AS is_booking,
 
   -- JSON con todos los pagos relacionados a esta solicitud
@@ -369,12 +372,18 @@ SELECT
       JSON_OBJECT(
         'id_factura', f.id_factura,
         'id_facturama', f.id_facturama,
-        'fecha_emision', f.created_at
+        'fecha_emision', f.created_at,
+        'RFC', f.rfc,
+        'id_empresa', f.id_empresa,
+        'folio', f.id_facturama,
+        'monto_factura', f.total,
+        'razon_social', e.razon_social
       )
     )
     FROM pagos p
     JOIN facturas_pagos fp ON p.id_pago = fp.id_pago
     JOIN facturas f ON fp.id_factura = f.id_factura
+    JOIN empresas e ON f.id_empresa = e.id_empresa
     WHERE p.id_servicio = solicitudes.id_servicio
   ) AS facturas
 
@@ -382,9 +391,9 @@ FROM servicios
 LEFT JOIN solicitudes ON servicios.id_servicio = solicitudes.id_servicio
 LEFT JOIN bookings ON solicitudes.id_solicitud = bookings.id_solicitud
 LEFT JOIN hospedajes ON bookings.id_booking = hospedajes.id_booking
+LEFT JOIN viajeros ON solicitudes.id_viajero = viajeros.id_viajero
 WHERE solicitudes.id_solicitud IS NOT NULL
-AND solicitudes.id_usuario_generador = ?
-GROUP BY solicitudes.id_solicitud
+  AND solicitudes.id_usuario_generador = ?
 ORDER BY servicios.created_at DESC;`;
     let response = await executeQuery(query, [user_id]);
 

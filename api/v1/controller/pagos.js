@@ -41,6 +41,17 @@ const getAllPagos = async (req, res) => {
   }
 };
 
+const readConsultas = async (req, res) => {
+  try {
+    const { user_id } = req.query
+    let solicitudes = await model.getPagosConsultas(user_id)
+    res.status(200).json(solicitudes)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal Server Error', details: error })
+  }
+}
+
 const getPendientesAgente = async (req, res) => {
   try {
     const { id_agente } = req.query;
@@ -130,4 +141,5 @@ module.exports = {
   getPendientesAgente,
   getAllPendientes,
   getAllPagos,
+  readConsultas,
 };
