@@ -133,7 +133,7 @@ const getSolicitudes = async (filters = {}) => {
     }
 
     if (filters.hotel) {
-      conditions.push(`s.hotel LIKE ?`);
+      conditions.push(`so.hotel LIKE ?`);
       values.push(`%${filters.hotel}%`);
     }
 
