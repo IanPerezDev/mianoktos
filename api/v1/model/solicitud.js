@@ -157,13 +157,13 @@ const getSolicitudes = async (filters = {}) => {
     }
 
     if (filters.startDate && filters.endDate) {
-      conditions.push(`${type_filters[filterType]} BETWEEN ? AND ?`);
+      conditions.push(`${type_filters[filters.filterType]} BETWEEN ? AND ?`);
       values.push(filters.startDate, filters.endDate);
     } else if (filters.startDate) {
-      conditions.push(`${type_filters[filterType]} >= ?`);
+      conditions.push(`${type_filters[filters.filterType]} >= ?`);
       values.push(filters.startDate);
     } else if (filters.endDate) {
-      conditions.push(`${type_filters[filterType]} <= ?`);
+      conditions.push(`${type_filters[filters.filterType]} <= ?`);
       values.push(filters.endDate);
     }
 
@@ -199,6 +199,7 @@ const getSolicitudes = async (filters = {}) => {
     let response = await executeQuery(query, values);
     return response;
   } catch (error) {
+    console.error("Error in getSolicitudes:", error);
     throw error;
   }
 };
