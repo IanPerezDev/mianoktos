@@ -41,6 +41,17 @@ const read = async (req, res) => {
     res.status(500).json({ error: 'Error en el servidor', details: error })
   }
 }
+
+const readAll = async (req, res) => {
+  try {
+    const agentes = await model.getAllEmpresas()
+    res.status(200).json(agentes)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
 const readbyId = async (req, res) => {
   try {
     const agentes = await model.getEmpresaById(req.query)
@@ -57,4 +68,5 @@ module.exports = {
   readbyId,
   update,
   deleteEmpresaById,
+  readAll,
 }
