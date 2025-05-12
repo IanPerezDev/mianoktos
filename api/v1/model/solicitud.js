@@ -143,7 +143,7 @@ const getSolicitudes = async (filters = {}) => {
         Confirmada: "complete",
         Cancelada: "canceled",
       };
-      conditions.push(`s.status = ?`);
+      conditions.push(`so.status = ?`);
       values.push(estadoMap[filters.status]);
     }
 
