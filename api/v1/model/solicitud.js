@@ -133,21 +133,8 @@ WHERE p.id_pago IS NOT NULL OR p_c.id_credito IS NOT NULL
 GROUP BY so.id_solicitud
 ORDER BY s.created_at DESC;`;
     let response = await executeQuery(query);
-    console.log(response);
 
-    let group_service = response.reduce((acc, item) => {
-      if (!acc[item.id_servicio]) {
-        acc[item.id_servicio] = [];
-      }
-      acc[item.id_servicio].push(item);
-      return acc;
-    }, {});
-    let array_services = Object.entries(group_service).map(([key, value]) => ({
-      id_servicio: key,
-      solicitudes: value,
-    }));
-
-    return array_services;
+    return response;
   } catch (error) {
     throw error;
   }
