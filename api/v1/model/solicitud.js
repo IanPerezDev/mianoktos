@@ -121,7 +121,7 @@ const getSolicitudes = async (filters = {}) => {
     };
 
     if (filters.client) {
-      conditions.push(`(vw.primer_nombre LIKE ? OR,
+      conditions.push(`(vw.primer_nombre LIKE ? OR
         vw.apellido_paterno LIKE ?)`);
       values.push(`%${filters.client}%`);
       values.push(`%${filters.client}%`);
