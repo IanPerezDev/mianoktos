@@ -109,31 +109,94 @@ const createSolicitudes = async (body) => {
   }
 };
 
-const getSolicitudes = async () => {
+const getSolicitudes = async (filters = {}) => {
   try {
-    let query = `select 
-s.id_servicio,
-s.created_at,
-s.is_credito,
-so.*,
-b.id_booking,  
-p.id_pago,
-p_c.id_credito, 
-p_c.pendiente_por_cobrar,
-p.monto_a_credito,
-vw.primer_nombre,
-vw.apellido_paterno
-from solicitudes as so
-LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
-LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
-LEFT JOIN pagos_credito as p_c ON s.id_servicio = p_c.id_servicio
-LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
-LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
-WHERE p.id_pago IS NOT NULL OR p_c.id_credito IS NOT NULL 
-GROUP BY so.id_solicitud
-ORDER BY s.created_at DESC;`;
-    let response = await executeQuery(query);
+    let conditions = [];
+    let values = [];
+    let type_filters = {
+      "Check-in": "so.check_in",
+      "Check-out": "so.check_out",
+      Transaccion: "s.created_at",
+      Creacion: "s.created_at",
+    };
 
+    if (filters.client) {
+      conditions.push(`(vw.primer_nombre LIKE ? OR,
+        vw.apellido_paterno LIKE ?)`);
+      values.push(`%${filters.client}%`);
+      values.push(`%${filters.client}%`);
+    }
+
+    if (filters.traveler) {
+      conditions.push(`so.nombre_viajero LIKE ?`);
+      values.push(`%${filters.traveler}%`);
+    }
+
+    if (filters.hotel) {
+      conditions.push(`s.hotel LIKE ?`);
+      values.push(`%${filters.hotel}%`);
+    }
+
+    if (filters.status) {
+      const estadoMap = {
+        Pendiente: "pending",
+        Confirmada: "complete",
+        Cancelada: "canceled",
+      };
+      conditions.push(`s.status = ?`);
+      values.push(estadoMap[filters.status]);
+    }
+
+    if (filters.paymenthMethod) {
+      const paymentMethodMap = {
+        Contado: "contado",
+        Credito: "credito",
+      };
+      conditions.push(`p.tipo_de_pago = ?`);
+      values.push(paymentMethodMap[filters.paymenthMethod]);
+    }
+
+    if (filters.startDate && filters.endDate) {
+      conditions.push(`${type_filters[filterType]} BETWEEN ? AND ?`);
+      values.push(filters.startDate, filters.endDate);
+    } else if (filters.startDate) {
+      conditions.push(`${type_filters[filterType]} >= ?`);
+      values.push(filters.startDate);
+    } else if (filters.endDate) {
+      conditions.push(`${type_filters[filterType]} <= ?`);
+      values.push(filters.endDate);
+    }
+
+    let whereClause = `
+      WHERE (p.id_pago IS NOT NULL OR p_c.id_credito IS NOT NULL)
+      ${conditions.length ? "AND " + conditions.join(" AND ") : ""}
+    `;
+
+    let query = `
+      SELECT 
+        s.id_servicio,
+        s.created_at,
+        s.is_credito,
+        so.*,
+        b.id_booking,  
+        p.id_pago,
+        p_c.id_credito, 
+        p_c.pendiente_por_cobrar,
+        p.monto_a_credito,
+        vw.primer_nombre,
+        vw.apellido_paterno
+      FROM solicitudes as so
+      LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
+      LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
+      LEFT JOIN pagos_credito as p_c ON s.id_servicio = p_c.id_servicio
+      LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
+      LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_agente = so.id_viajero
+      ${whereClause}
+      GROUP BY so.id_solicitud
+      ORDER BY s.created_at DESC
+    `;
+
+    let response = await executeQuery(query, values);
     return response;
   } catch (error) {
     throw error;
