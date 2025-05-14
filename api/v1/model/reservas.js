@@ -65,6 +65,7 @@ const createReservaFromOperaciones = async (body) => {
             costo_impuestos,
             codigo_reservacion_hotel,
             items,
+            id_hotel,
           } = body;
           const query = `INSERT INTO bookings (id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, fecha_pago_proveedor, fecha_limite_cancelacion, id_solicitud ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);`;
           const params = [
@@ -86,7 +87,7 @@ const createReservaFromOperaciones = async (body) => {
           const response_booking = await connection.execute(query, params);
 
           const id_hospedaje = `hos-${uuidv4()}`;
-          const query_hospedaje = `INSERT INTO hospedajes (id_hospedaje, id_booking, nombre_hotel, cadena_hotel, codigo_reservacion_hotel, tipo_cuarto, noches, is_rembolsable, monto_penalizacion, conciliado, credito) VALUES (?,?,?,?,?,?,?,?,?,?,?);`;
+          const query_hospedaje = `INSERT INTO hospedajes (id_hospedaje, id_booking, nombre_hotel, cadena_hotel, codigo_reservacion_hotel, tipo_cuarto, noches, is_rembolsable, monto_penalizacion, conciliado, credito, id_hotel) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);`;
           const params_hospedaje = [
             id_hospedaje,
             id_booking,
@@ -99,6 +100,7 @@ const createReservaFromOperaciones = async (body) => {
             null,
             null,
             null,
+            id_hotel,
           ];
           const response_hospedaje = await connection.execute(
             query_hospedaje,
@@ -234,6 +236,8 @@ const insertarReserva = async (body) => {
       noches,
       items,
       codigo_reservacion_hotel,
+      comments,
+      id_hotel,
     } = body;
 
     const { id_servicio, id_solicitud } = solicitud;
@@ -260,7 +264,7 @@ const insertarReserva = async (body) => {
       params,
       async (results, connection) => {
         try {
-          const query_hospedaje = `INSERT INTO hospedajes (id_hospedaje, id_booking, nombre_hotel, cadena_hotel, codigo_reservacion_hotel, tipo_cuarto, noches, is_rembolsable, monto_penalizacion, conciliado, credito) VALUES (?,?,?,?,?,?,?,?,?,?,?);`;
+          const query_hospedaje = `INSERT INTO hospedajes (id_hospedaje, id_booking, nombre_hotel, cadena_hotel, codigo_reservacion_hotel, tipo_cuarto, noches, is_rembolsable, monto_penalizacion, conciliado, credito, comments, id_hotel) VALUES (?,?,?,?,?,?,?,?,?,?,?, ?,?);`;
           const params_hospedaje = [
             id_hospedaje,
             id_booking,
@@ -273,6 +277,8 @@ const insertarReserva = async (body) => {
             null,
             null,
             null,
+            comments,
+            id_hotel,
           ];
 
           const response_hospedaje = await connection.execute(

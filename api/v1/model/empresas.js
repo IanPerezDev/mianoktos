@@ -24,20 +24,25 @@ const createEmpresa = async (empresa) => {
       empresa.codigo_postal || null,
     ];
 
-    const response = await executeTransaction(query, params, async (result, connection) => {
-      console.log("Se crea empresa");
+    const response = await executeTransaction(
+      query,
+      params,
+      async (result, connection) => {
+        console.log("Se crea empresa");
 
-      const query2 = "INSERT INTO empresas_agentes (id_empresa, id_agente) VALUES (?, ?);";
-      const params2 = [id_empresa, empresa.agente_id];
+        const query2 =
+          "INSERT INTO empresas_agentes (id_empresa, id_agente) VALUES (?, ?);";
+        const params2 = [id_empresa, empresa.agente_id];
 
-      try {
-        const result = await connection.execute(query2, params2);
-        console.log("Se crea agente empresa");
-        return result;
-      } catch (error) {
-        throw error;
+        try {
+          const result = await connection.execute(query2, params2);
+          console.log("Se crea agente empresa");
+          return result;
+        } catch (error) {
+          throw error;
+        }
       }
-    });
+    );
 
     return {
       success: true,
@@ -81,7 +86,7 @@ const updateEmpresa = async (empresa) => {
       empresa.codigo_postal || null,
       empresa.id_empresa, // ID de la empresa a actualizar
     ];
-    const response = await executeQuery(query,params)
+    const response = await executeQuery(query, params);
     return {
       success: true,
       id_empresa: empresa.id_empresa, // Devolvemos el mismo ID
@@ -93,16 +98,8 @@ const updateEmpresa = async (empresa) => {
 
 const deleteEmpresa = async (id_empresa) => {
   try {
-    const query1 = "DELETE FROM datos_fiscales WHERE id_empresa = ?;";
-    await executeTransaction(query1, [id_empresa], async (result, connection) => {
-      
-      const deleteAgentes = "DELETE FROM empresas_agentes WHERE id_empresa = ?;";
-      await connection.execute(deleteAgentes, [id_empresa]);
-      // Eliminar la empresa
-      const query2 = "DELETE FROM empresas WHERE id_empresa = ?;";
-      await connection.execute(query2, [id_empresa]);
-    });
-
+    const query1 = "Update empresas set estado = false where id_empresa = ?;";
+    const response = await executeQuery(query1, [id_empresa]);
     return {
       success: true,
       id_empresa,
@@ -116,16 +113,13 @@ const deleteEmpresa = async (id_empresa) => {
   }
 };
 
-
-
-
 const getEmpresas = async () => {
   try {
-    const query = "SELECT * FROM empresas"
-    const response = await executeQuery(query)
-    return response
+    const query = "SELECT * FROM empresas";
+    const response = await executeQuery(query);
+    return response;
   } catch (error) {
-    throw error
+    throw error;
   }
 }
 
@@ -137,23 +131,23 @@ const getAllEmpresas = async () => {
   } catch (error) {
     throw error
   }
-}
+};
 
 const getEmpresaById = async ({ id }) => {
   try {
-    const query = "SELECT * FROM empresas WHERE id_empresa = ?"
-    const response = await executeQuery(query, [id])
-    return response[0]
+    const query = "SELECT * FROM empresas WHERE id_empresa = ?";
+    const response = await executeQuery(query, [id]);
+    return response[0];
   } catch (error) {
-    throw error
+    throw error;
   }
-}
+};
 
 module.exports = {
   createEmpresa,
   getEmpresas,
-  getEmpresaById, 
+  getEmpresaById,
   updateEmpresa,
   deleteEmpresa,
   getAllEmpresas,
-}
+};
