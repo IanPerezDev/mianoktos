@@ -18,4 +18,5 @@ router.get("/Consulta-Hoteles-por-termino",controller.BuscaHotelesPorTermino);
 router.get("/Filtra-hotel-tarifas-por-nombre",controller.get_hotel_tarifas_by_nombre);
 router.patch("/Actualiza-tarifa",controller.actualizarTarifa);
 router.patch("/Eliminar-tarifa-preferencial",controller.eliminarLogicaTarifa);
+router.post("/Filtro-avanzado",controller.filtroAvanzado)
 module.exports = router;
