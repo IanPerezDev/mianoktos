@@ -678,11 +678,77 @@ const eliminarLogicaTarifa = async (req, res) => {
   }
 };
 
+const filtroAvanzado = async (req, res) => {
+  const {
+    desayuno,
+    activo,
+    acepta_mascotas,
+    correo,
+    doble_costo_max,
+    doble_costo_min,
+    doble_precio_max,
+    doble_precio_min,
+    estado,
+    hay_convenio,
+    nombre,
+    rfc,
+    razon_social,
+    sencilla_costo_max,
+    sencilla_costo_min,
+    sencilla_precio_max,
+    sencilla_precio_min,
+    tipo_hospedaje,
+    tipo_negociacion,
+    tipo_pago,
+    tiene_transportacion
+  } = req.body;
+
+  // Utilidad para convertir a mayúsculas si es string
+  const toUpperOrNull = (val) =>
+    typeof val === "string" ? val.toUpperCase() : val ?? null;
+
+  try {
+    const result = await executeSP("filtro_completo", [
+      toUpperOrNull(desayuno),
+      activo ?? null,
+      toUpperOrNull(acepta_mascotas),
+      toUpperOrNull(correo),
+      doble_costo_max ?? null,
+      doble_costo_min ?? null,
+      doble_precio_max ?? null,
+      doble_precio_min ?? null,
+      toUpperOrNull(estado),
+      toUpperOrNull(hay_convenio),
+      toUpperOrNull(nombre),
+      toUpperOrNull(rfc),
+      toUpperOrNull(razon_social),
+      sencilla_costo_max ?? null,
+      sencilla_costo_min ?? null,
+      sencilla_precio_max ?? null,
+      sencilla_precio_min ?? null,
+      toUpperOrNull(tipo_hospedaje),
+      toUpperOrNull(tipo_negociacion),
+      toUpperOrNull(tipo_pago),
+      toUpperOrNull(tiene_transportacion)
+    ], true);
+
+    if (!result) {
+      res.status(404).json({ message: "No se encontraron hoteles con esa búsqueda" });
+    } else {
+      res.status(200).json({ message: "Hoteles recuperados con éxito", data: result });
+    }
+  } catch (error) {
+    console.error("Error al ejecutar filtro_completo:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
+
 module.exports = {
   readGroupByHotel,
   AgregarHotel,consultaHoteles,actualizaHotel,
     eliminaHotelLogico,consultaPrecioSencilla,consultaPrecioDoble,filtra_hoteles,getTarifasByIdHotel,
     paginacion,BuscaHotelesPorTermino,get_hotel_tarifas_by_nombre,
-  readHotelesWithTarifa,actualizarTarifa,eliminarLogicaTarifa
+  readHotelesWithTarifa,actualizarTarifa,eliminarLogicaTarifa,filtroAvanzado
 
 }
