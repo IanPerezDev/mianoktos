@@ -121,7 +121,18 @@ const getEmpresas = async () => {
   } catch (error) {
     throw error;
   }
+}
+
+const getAllEmpresas = async () => {
+  try {
+    const query = "SELECT * FROM vw_datos_fiscales_detalle"
+    const response = await executeQuery(query)
+    return response
+  } catch (error) {
+    throw error
+  }
 };
+
 const getEmpresaById = async ({ id }) => {
   try {
     const query = "SELECT * FROM empresas WHERE id_empresa = ?";
@@ -138,4 +149,5 @@ module.exports = {
   getEmpresaById,
   updateEmpresa,
   deleteEmpresa,
+  getAllEmpresas,
 };
