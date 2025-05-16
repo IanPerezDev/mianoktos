@@ -151,10 +151,21 @@ const deleteViajero = async (id_viajero) => {
   }
 }
 
+const readAllViajeros = async () => {
+  try {
+    const query = "select vea.*, a.nombre as nombre_agente from viajeros_con_empresas_con_agentes as vea join agentes as a on vea.id_agente = a.id_agente;";
+    const response = executeQuery(query);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   readViajero,
   createViajero,
   readViajeroById,
   updateViajero,
   deleteViajero,
+  readAllViajeros,
 };
