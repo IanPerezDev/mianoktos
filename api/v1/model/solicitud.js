@@ -261,7 +261,7 @@ ORDER BY s.created_at DESC;`;
 const getSolicitudById = async (id) => {
   try {
     let query = `
-        select 
+select 
 s.id_servicio,
 s.created_at,
 s.is_credito,
@@ -273,6 +273,7 @@ so.check_out,
 so.room,
 so.total,
 h.comments,
+h.id_hotel,
 so.id_usuario_generador,
 so.nombre_viajero,
 b.id_booking, 
@@ -280,6 +281,7 @@ h.codigo_reservacion_hotel,
 p.id_pago, 
 p.pendiente_por_cobrar,
 p.monto_a_credito,
+hot.direccion,
 fp.id_factura,
 vw.primer_nombre,
 vw.apellido_paterno,
@@ -291,6 +293,7 @@ LEFT JOIN hospedajes as h ON b.id_booking = h.id_booking
 LEFT JOIN pagos as p ON so.id_servicio = p.id_servicio
 LEFT JOIN facturas_pagos as fp ON p.id_pago = fp.id_pago
 LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_viajero = so.id_viajero
+LEFT JOIN hoteles as hot ON hot.id_hotel = h.id_hotel
 WHERE so.id_solicitud = ?
 GROUP BY so.id_solicitud
 ORDER BY s.created_at DESC;`;
