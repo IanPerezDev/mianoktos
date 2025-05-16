@@ -41,6 +41,7 @@ const AgregarHotel = async (req, res) => {
       urlImagenHotelQQ = null,
       calificacion = null,
       activo = 1,
+
       tarifas = {
         general: {
           costo_q: null,
@@ -71,7 +72,11 @@ const AgregarHotel = async (req, res) => {
       iva,
       ish,
       otros_impuestos,
-      comentario_pago
+      comentario_pago,
+      mascotas,
+      salones,
+      comentario_vigencia,
+      otros_impuestos_porcentaje
     } = req.body;
     const { preferenciales } = tarifas;
     // Función para asegurar valores numéricos
@@ -141,16 +146,17 @@ const AgregarHotel = async (req, res) => {
     } = tarifas;
 
     // Validar que los campos esenciales estén presentes
-    if (!nombre || !id_cadena || !direccion || !estado || !ciudad_zona) {
+    if (!nombre || !direccion || !estado || !ciudad_zona ||!tipo_negociacion) {
       console.log('Error: Faltan campos obligatorios');
       return res.status(400).json({
         success: false,
-        message: "Faltan campos obligatorios: nombre, id_cadena, direccion, estado, ciudad_zona"
+        
+        message: "Faltan campos obligatorios: nombre, id_cadena, direccion, estado, ciudad_zona,tipo_negociacion, vigencia_convenio"
       });
     }
 
     // Llamada al stored procedure (descomentar cuando esté listo)
-    
+  
     const result = await executeSP("sp_inserta_hotel3", [
       id_excel || null,
       tipo_negociacion,
@@ -187,45 +193,33 @@ const AgregarHotel = async (req, res) => {
       safeNumber(ish),
       safeNumber(otros_impuestos),
       comentario_pago,
-      
-      // Datos de desayuno sencilla - asegurar que el valor booleano se mantenga
-      sencilla.incluye === true, // Conversión explícita
+      mascotas,
+      salones,
+      comentario_vigencia,
+      otros_impuestos_porcentaje,
+      // Datos de desayuno sencilla
+      sencilla.incluye === true,
       sencilla.tipo_desayuno || null,
       safeNumber(sencilla.precio),
       sencilla.comentarios || null,
-      
       // Datos de desayuno doble
-      doble.incluye === true, // Conversión explícita
+      doble.incluye === true,
       doble.tipo_desayuno || null,
       safeNumber(doble.precio),
-      safeNumber(doble.precio_noche_extra),
       doble.comentarios || null,
-      
       // Tarifas generales
       safeNumber(costo_q),
       safeNumber(precio_q),
       safeNumber(costo_qq),
       safeNumber(precio_qq),
-      
+      // Precio persona extra en doble (nuevo parámetro)
+      safeNumber(doble.precio_persona_extra),
+      // Tarifas preferenciales
       tarifas_preferenciales_json,
-      
+      // Notas y sepomex
       Comentarios || "",
       safeNumber(id_sepomex)
     ], false);
-    
-
-    // Respuesta temporal para pruebas (eliminar cuando esté listo el SP)
-    // return res.status(200).json({ 
-    //   success: true, 
-    //   data: {
-    //     message: "Hotel procesado correctamente (simulación)",
-    //     tarifas_preferenciales: tarifasPreferenciales,
-    //     incluye_sencilla: tarifasPreferenciales[0]?.sencilla?.incluye,
-    //     incluye_doble: tarifasPreferenciales[0]?.doble?.incluye
-    //   } 
-    // });
-
-    // Respuesta real cuando el SP esté listo
     
     res.status(200).json({ 
       success: true, 
@@ -275,6 +269,7 @@ const consultaHoteles= async (req,res) => {
       cuenta_de_deposito,
       Estado,
       Ciudad_Zona,
+      Colonia,
       MenoresEdad,
       PaxExtraPersona,
       Transportacion,
@@ -291,12 +286,16 @@ const consultaHoteles= async (req,res) => {
       iva,
       ish,
       otros_impuestos,
+      otros_impuestos_porcentaje,
       tipo_negociacion,
       vigencia_convenio,
       tipo_pago,
       disponibilidad_precio,
       contacto_convenio,
-      contacto_recepcion
+      contacto_recepcion,
+      mascotas,
+      salones,
+      comentario_vigencia,
     } = req.body;
 
     console.log("Datos recibidos:", req.body);
@@ -318,6 +317,7 @@ const consultaHoteles= async (req,res) => {
         cuenta_de_deposito,
         Estado,
         Ciudad_Zona,
+        Colonia,
         MenoresEdad,
         PaxExtraPersona,
         Transportacion,
@@ -334,12 +334,16 @@ const consultaHoteles= async (req,res) => {
         iva,
         ish,
         otros_impuestos,
+        otros_impuestos_porcentaje,
         tipo_negociacion,
         vigencia_convenio,
         tipo_pago,
         disponibilidad_precio,
         contacto_convenio,
-        contacto_recepcion
+        contacto_recepcion,
+        mascotas,
+        salones,
+        comentario_vigencia
       ], false);
 
       res.status(200).json({
@@ -465,16 +469,17 @@ const consultaHoteles= async (req,res) => {
 const paginacion = async (req, res) => {
   const {pagina} = req.query;
   try {
-    const result = await executeSP("SP_Hoteles_Paginacion",[pagina],false);
+    const result = await executeSP("SP_Hoteles_Paginacion",[pagina],true);
     if (!result[0]) {
       res.status(404).json({message: "No se encontraron hoteles para la pagina solicitada"});
 
     } else {
       const hoteles = result;
-      const info_paginacion = result[1]?.[0] || {
-        pagina: pagina,
-        total_paginas: 1,
-        total_registros: hoteles.length
+      const paginationRows = result[1] ?? [];
+      const info_paginacion = paginationRows[0] ?? {
+        pagina: Number(pagina),
+        total_paginas: 0,
+        total_registros: 0
       };
       res.status(200).json({message: "Hoteles recuerados con exito",
         hoteles: hoteles, info:info_paginacion});
