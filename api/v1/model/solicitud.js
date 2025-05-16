@@ -283,7 +283,7 @@ p.pendiente_por_cobrar,
 p.monto_a_credito,
 hot.direccion,
 fp.id_factura,
-	CONCAT_WS(' ', vw.primer_nombre, vw.segundo_nombre, vw.apellido_paterno, vw.apellido_materno) AS nombre_viajero_completo,
+	CONCAT_WS(' ', vw.primer_nombre, vw.segundo_nombre, vw.apellido_paterno, vw.apellido_materno) AS nombre_viajero_completo
 from solicitudes as so
 LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
 LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
