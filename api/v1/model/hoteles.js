@@ -45,6 +45,15 @@ const getHotelesWithCuartos = async () => {
           nombre_hotel: item.nombre_hotel,
           Estado: item.Estado,
           Ciudad_Zona: item.Ciudad_Zona,
+          impuestos: [
+            { name: "iva", porcentaje: item.iva },
+            { name: "ish", porcentaje: item.ish },
+            { name: "otros_impuestos", monto: item.otros_impuestos },
+            {
+              name: "otros_impuestos_porcentaje",
+              porcentaje: item.otros_impuestos_porcentaje,
+            },
+          ],
           imagenes: [
             item.URLImagenHotel,
             item.URLImagenHotelQ,
