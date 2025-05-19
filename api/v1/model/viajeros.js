@@ -130,7 +130,8 @@ const readViajero = async () => {
 };
 const readViajeroById = async (id) => {
   try {
-    const query = `select * from viajeros_con_empresas_con_agentes where id_agente = ?;`;
+    const query = `select CONCAT_WS(' ', primer_nombre, segundo_nombre, apellido_paterno, apellido_materno) AS nombre_viajero_completo , id_viajero, correo, genero, fecha_nacimiento, telefono, nacionalidad, numero_pasaporte, numero_empleado
+from viajeros_con_empresas_con_agentes where id_agente = ?;`;
     const response = executeQuery(query, [id]);
     return response;
   } catch (error) {
@@ -149,7 +150,7 @@ const deleteViajero = async (id_viajero) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 module.exports = {
   readViajero,
