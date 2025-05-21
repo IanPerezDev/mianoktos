@@ -76,7 +76,8 @@ const AgregarHotel = async (req, res) => {
       mascotas,
       salones,
       comentario_vigencia,
-      otros_impuestos_porcentaje
+      otros_impuestos_porcentaje,
+      pais
     } = req.body;
     const { preferenciales } = tarifas;
     // Función para asegurar valores numéricos
@@ -85,7 +86,8 @@ const AgregarHotel = async (req, res) => {
       const num = Number(value);
       return isNaN(num) ? null : num;
     };
-
+    //si el pais es null se asigna Mexico
+    const pais2= pais === null ? "MEXICO" : pais;
     // Procesar tarifas preferenciales - VERSIÓN CORREGIDA
     const processTarifasPreferenciales = () => {
       if (!Array.isArray(preferenciales)) return [];
@@ -218,7 +220,8 @@ const AgregarHotel = async (req, res) => {
       tarifas_preferenciales_json,
       // Notas y sepomex
       Comentarios || "",
-      safeNumber(id_sepomex)
+      safeNumber(id_sepomex),
+      pais2
     ], false);
     
     res.status(200).json({ 
@@ -296,10 +299,11 @@ const consultaHoteles= async (req,res) => {
       mascotas,
       salones,
       comentario_vigencia,
+      pais
     } = req.body;
 
     console.log("Datos recibidos:", req.body);
-
+    const pais2= pais === null ? "MEXICO" : pais;
     try {
       const hotel_actualizado = await executeSP("sp_actualizar_hotel2", [
         id_hotel,
@@ -343,7 +347,8 @@ const consultaHoteles= async (req,res) => {
         contacto_recepcion,
         mascotas,
         salones,
-        comentario_vigencia
+        comentario_vigencia,
+        pais2
       ], false);
 
       res.status(200).json({
@@ -700,7 +705,8 @@ const filtroAvanzado = async (req, res) => {
     tipo_hospedaje,
     tipo_negociacion,
     tipo_pago,
-    tiene_transportacion
+    tiene_transportacion,
+    pais
   } = req.body;
 
   // Utilidad para convertir a mayúsculas si es string
@@ -729,7 +735,8 @@ const filtroAvanzado = async (req, res) => {
       toUpperOrNull(tipo_hospedaje),
       toUpperOrNull(tipo_negociacion),
       toUpperOrNull(tipo_pago),
-      toUpperOrNull(tiene_transportacion)
+      toUpperOrNull(tiene_transportacion),
+      toUpperOrNull(pais)
     ], true);
 
     if (!result) {
