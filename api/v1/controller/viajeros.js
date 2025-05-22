@@ -31,6 +31,16 @@ const read = async (req, res) => {
   }
 }
 
+const readAllViajeros = async (req, res) => {
+  try {
+    const viajeros = await model.readAllViajeros();
+    res.status(200).json(viajeros)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: 'Error en el servidor', details: error })
+  }
+}
+
 const readById = async (req, res) => {
   try {
     const viajeros = await model.readViajeroById(req.query.id)
@@ -86,4 +96,5 @@ const primeros_empresa_viajero = async (req,res) => {
 module.exports = {
   create,
   read, get_viajeros_by_id_agente,primeros_empresa_viajero,  readById, update, deleteViajeroById,
+  readAllViajeros,
 }
