@@ -215,273 +215,6 @@ const createReservaFromOperaciones = async (body) => {
   }
 };
 
-const insertarReserva = async (body) => {
-  try {
-    const id_booking = `boo-${uuidv4()}`;
-    const id_hospedaje = `hos-${uuidv4()}`;
-    const {
-      solicitud,
-      estado,
-      id_viajero,
-      costo_subtotal,
-      costo_total,
-      costo_impuestos,
-      check_in,
-      check_out,
-      nombre_hotel,
-      total,
-      subtotal,
-      impuestos,
-      tipo_cuarto,
-      noches,
-      items,
-      codigo_reservacion_hotel,
-      comments,
-      id_hotel,
-    } = body;
-
-    const { id_servicio, id_solicitud } = solicitud;
-    const query = `INSERT INTO bookings (id_booking, id_servicio, check_in, check_out, total, subtotal, impuestos, estado, costo_total, costo_subtotal, costo_impuestos, fecha_pago_proveedor, fecha_limite_cancelacion, id_solicitud ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);`;
-    const params = [
-      id_booking,
-      id_servicio,
-      check_in,
-      check_out,
-      total,
-      subtotal,
-      impuestos,
-      estado,
-      costo_total,
-      costo_subtotal,
-      costo_impuestos,
-      null,
-      null,
-      id_solicitud,
-    ];
-
-    const response = await executeTransaction(
-      query,
-      params,
-      async (results, connection) => {
-        try {
-          const query_hospedaje = `INSERT INTO hospedajes (id_hospedaje, id_booking, nombre_hotel, cadena_hotel, codigo_reservacion_hotel, tipo_cuarto, noches, is_rembolsable, monto_penalizacion, conciliado, credito, comments, id_hotel) VALUES (?,?,?,?,?,?,?,?,?,?,?, ?,?);`;
-          const params_hospedaje = [
-            id_hospedaje,
-            id_booking,
-            nombre_hotel,
-            null,
-            codigo_reservacion_hotel,
-            tipo_cuarto,
-            noches,
-            null,
-            null,
-            null,
-            null,
-            comments,
-            id_hotel,
-          ];
-
-          const response_hospedaje = await connection.execute(
-            query_hospedaje,
-            params_hospedaje
-          );
-
-          const query_pago = `SELECT id_pago FROM pagos WHERE id_servicio = ? LIMIT 1;`;
-          const [rows] = await connection.execute(query_pago, [id_servicio]);
-
-          if (rows.length === 0) {
-            const query_pago = `SELECT id_credito FROM pagos_credito WHERE id_servicio = ? LIMIT 1;`;
-            const [rowss] = await connection.execute(query_pago, [id_servicio]);
-            if (rowss.length === 0) {
-              console.log("errrror");
-              throw new Error(
-                `No se encontró un pago para el servicio ${id_servicio}`
-              );
-            }
-            console.log("credito");
-            const itemsConId = items.map((item) => ({
-              ...item,
-              id_item: `ite-${uuidv4()}`,
-              costo_total: item.total,
-              costo_subtotal: parseFloat(item.subtotal.toFixed(2)),
-              costo_impuestos: parseFloat(item.impuestos.toFixed(2)),
-              costo_iva: parseFloat(item.total.toFixed(2)),
-              saldo: parseFloat(0),
-            }));
-            const query_items = `INSERT INTO items (id_item, id_catalogo_item, id_factura, total, subtotal, impuestos, is_facturado, fecha_uso, id_hospedaje, costo_total, costo_subtotal, costo_impuestos, costo_iva,saldo) VALUES ${itemsConId
-              .map((item) => "(?, ?,?,?,?,?,?,?,?, ?, ?, ?, ?, ?)")
-              .join(",")};`;
-
-            const params_items = itemsConId.flatMap((item) => [
-              item.id_item,
-              null,
-              null,
-              item.total,
-              item.subtotal,
-              item.impuestos,
-              null,
-              new Date().toISOString().split("T")[0],
-              id_hospedaje,
-              item.costo_total,
-              item.costo_subtotal,
-              item.costo_impuestos,
-              item.costo_iva,
-              item.saldo,
-            ]);
-
-            const response_items = await connection.execute(
-              query_items,
-              params_items
-            );
-
-            const taxesData = [];
-
-            itemsConId.forEach((item) => {
-              if (item.taxes && item.taxes.length > 0) {
-                item.taxes.forEach((tax) => {
-                  taxesData.push({
-                    id_item: item.id_item,
-                    id_impuesto: 1, //Checar bien el cambio
-                    base: tax.base,
-                    total: tax.total,
-                  });
-                });
-              }
-            });
-            console.log(taxesData);
-
-            if (taxesData.length > 0) {
-              const query_impuestos_items = `
-            INSERT INTO impuestos_items (id_impuesto, id_item, base, total)
-            VALUES ${taxesData.map(() => "(?, ?, ?, ?)").join(", ")};
-          `;
-
-              const params_impuestos_items = taxesData.flatMap((t) => [
-                t.id_impuesto,
-                t.id_item,
-                t.base,
-                t.total,
-              ]);
-
-              const response_impuestos_items = await connection.execute(
-                query_impuestos_items,
-                params_impuestos_items
-              );
-            }
-
-            const response_solicitud = await connection.execute(
-              `UPDATE solicitudes SET status = "complete" WHERE id_solicitud = ?;`,
-              [id_solicitud]
-            );
-
-            return { response_hospedaje, response_items, response_solicitud };
-          }
-          //pago de contado
-          else {
-            const id_pago = rows[0].id_pago;
-
-            console.log("gola");
-            const itemsConId = items.map((item) => ({
-              ...item,
-              id_item: `ite-${uuidv4()}`,
-              costo_total: item.total,
-              costo_subtotal: parseFloat(item.subtotal.toFixed(2)),
-              costo_impuestos: parseFloat(item.impuestos.toFixed(2)),
-              costo_iva: parseFloat(item.total.toFixed(2)),
-            }));
-            const query_items = `INSERT INTO items (id_item, id_catalogo_item, id_factura, total, subtotal, impuestos, is_facturado, fecha_uso, id_hospedaje, costo_total, costo_subtotal, costo_impuestos, costo_iva) VALUES ${itemsConId
-              .map((item) => "(?, ?,?,?,?,?,?,?,?, ?, ?, ?, ?)")
-              .join(",")};`;
-
-            const params_items = itemsConId.flatMap((item) => [
-              item.id_item,
-              null,
-              null,
-              item.total,
-              item.subtotal,
-              item.impuestos,
-              null,
-              new Date().toISOString().split("T")[0],
-              id_hospedaje,
-              item.costo_total,
-              item.costo_subtotal,
-              item.costo_impuestos,
-              item.costo_iva,
-            ]);
-
-            const response_items = await connection.execute(
-              query_items,
-              params_items
-            );
-
-            // Insertar en items_pagos
-            const query_items_pagos = `
-            INSERT INTO items_pagos (id_item, id_pago, monto)
-            VALUES ${itemsConId.map(() => "(?, ?, ?)").join(",")};
-          `;
-
-            const params_items_pagos = itemsConId.flatMap((item) => [
-              item.id_item,
-              id_pago,
-              item.total,
-            ]);
-
-            await connection.execute(query_items_pagos, params_items_pagos);
-
-            const taxesData = [];
-
-            itemsConId.forEach((item) => {
-              if (item.taxes && item.taxes.length > 0) {
-                item.taxes.forEach((tax) => {
-                  taxesData.push({
-                    id_item: item.id_item,
-                    id_impuesto: tax.id_impuesto, //Checar bien el cambio
-                    base: tax.base,
-                    total: tax.total,
-                  });
-                });
-              }
-            });
-            console.log(taxesData);
-
-            if (taxesData.length > 0) {
-              const query_impuestos_items = `
-            INSERT INTO impuestos_items (id_impuesto, id_item, base, total)
-            VALUES ${taxesData.map(() => "(?, ?, ?, ?)").join(", ")};
-          `;
-
-              const params_impuestos_items = taxesData.flatMap((t) => [
-                t.id_impuesto,
-                t.id_item,
-                t.base,
-                t.total,
-              ]);
-
-              const response_impuestos_items = await connection.execute(
-                query_impuestos_items,
-                params_impuestos_items
-              );
-            }
-
-            const response_solicitud = await connection.execute(
-              `UPDATE solicitudes SET status = "complete" WHERE id_solicitud = ?;`,
-              [id_solicitud]
-            );
-
-            return { response_hospedaje, response_items, response_solicitud };
-          }
-        } catch (error) {
-          throw error;
-        }
-      }
-    );
-
-    return response;
-  } catch (error) {
-    throw error; // Lanza el error para que puedas manejarlo donde llames la función
-  }
-};
-
 const getReserva = async () => {
   try {
     const query = `select * from bookings left join hospedajes on bookings.id_booking = hospedajes.id_booking;`;
@@ -596,6 +329,234 @@ WHERE b.id_booking = ?;`;
 
     return agruparDatos(response); // Retorna el resultado de la ejecución
   } catch (error) {
+    throw error; // Lanza el error para que puedas manejarlo donde llames la función
+  }
+};
+
+const insertarReserva = async ({ reserva }) => {
+  try {
+    const id_booking = `boo-${uuidv4()}`;
+    const { solicitud, venta, proveedor, hotel, items } = reserva; // 'items' aquí es ReservaForm['items']
+
+    // Query y parámetros para la inserción inicial en 'bookings'
+    // Asegúrate de que estas columnas coincidan con tu tabla 'bookings'
+    const query_bookings = `
+      INSERT INTO bookings (
+        id_booking, id_servicio, check_in, check_out, 
+        total, subtotal, impuestos, estado, 
+        costo_total, costo_subtotal, costo_impuestos, 
+        fecha_pago_proveedor, fecha_limite_cancelacion, id_solicitud
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    `;
+    const params_bookings = [
+      id_booking,
+      solicitud.id_servicio,
+      reserva.check_in,
+      reserva.check_out,
+      venta.total,
+      venta.subtotal,
+      venta.impuestos,
+      reserva.estado_reserva,
+      proveedor.total,
+      proveedor.subtotal,
+      proveedor.impuestos,
+      null, // fecha_pago_proveedor - Ajusta si lo tienes
+      null, // fecha_limite_cancelacion - Ajusta si lo tienes
+      solicitud.id_solicitud,
+    ];
+
+    // La función executeTransaction debería tomar la primera query y sus params,
+    // y luego el callback con la conexión para las siguientes operaciones.
+    const response = await executeTransaction(
+      query_bookings,
+      params_bookings,
+      async (results, connection) => {
+        // 'results' es de la inserción en bookings
+        try {
+          // 1. Insertar Hospedaje
+          const id_hospedaje = `hos-${uuidv4()}`;
+          // Asegúrate de que estas columnas coincidan con tu tabla 'hospedajes'
+          const query_hospedaje = `
+            INSERT INTO hospedajes (
+              id_hospedaje, id_booking, nombre_hotel, cadena_hotel, 
+              codigo_reservacion_hotel, tipo_cuarto, noches, 
+              is_rembolsable, monto_penalizacion, conciliado, 
+              credito, comments, id_hotel
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          `;
+          const params_hospedaje = [
+            id_hospedaje,
+            id_booking,
+            hotel.content?.nombre_hotel, // Usar optional chaining por si content no viene
+            null, // cadena_hotel - Ajusta si lo tienes
+            reserva.codigo_reservacion_hotel,
+            reserva.habitacion,
+            reserva.noches,
+            null, // is_rembolsable
+            null, // monto_penalizacion
+            null, // conciliado
+            null, // credito (¿se refiere al método de pago o a una línea de crédito del hotel?)
+            reserva.comments,
+            hotel.content?.id_hotel,
+          ];
+          await connection.execute(query_hospedaje, params_hospedaje);
+
+          // Preparar items con ID (común para ambos casos: crédito o contado)
+          // 'items' es el array original de ReservaForm['items']
+          const itemsConIdAnadido =
+            items && items.length > 0
+              ? items.map((item) => ({
+                  ...item, // Esto incluye item.costo, item.venta, item.impuestos originales
+                  id_item: `ite-${uuidv4()}`,
+                }))
+              : [];
+
+          // 2. Insertar Items en la tabla 'items' (común si hay items)
+          if (itemsConIdAnadido.length > 0) {
+            const query_items_insert = `
+              INSERT INTO items (
+                id_item, id_catalogo_item, id_factura, 
+                total, subtotal, impuestos, 
+                is_facturado, fecha_uso, id_hospedaje, 
+                costo_total, costo_subtotal, costo_impuestos, costo_iva, saldo
+              ) VALUES ${itemsConIdAnadido
+                .map(() => "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                .join(",")};
+            `;
+            const params_items_insert = itemsConIdAnadido.flatMap(
+              (itemConId) => [
+                itemConId.id_item,
+                null, // id_catalogo_item - Ajusta si lo tienes
+                null, // id_factura - Ajusta si lo tienes
+                itemConId.venta.total.toFixed(2),
+                itemConId.venta.subtotal.toFixed(2),
+                itemConId.venta.impuestos.toFixed(2),
+                null, // is_facturado - Ajusta si lo tienes
+                new Date().toISOString().split("T")[0], // fecha_uso
+                id_hospedaje,
+                itemConId.costo.total.toFixed(2),
+                itemConId.costo.subtotal.toFixed(2),
+                itemConId.costo.impuestos.toFixed(2),
+                // Asumimos IVA del 16% sobre el costo total del item. ¡VERIFICA ESTA LÓGICA!
+                (itemConId.costo.total * 0.16).toFixed(2),
+                0, // saldo inicial - Ajusta si es diferente
+              ]
+            );
+            await connection.execute(query_items_insert, params_items_insert);
+          }
+
+          // 3. Insertar Impuestos de Items en 'impuestos_items' (común si hay items con impuestos)
+          const taxesDataParaDb = []; // Puedes crear un tipo para esto
+          if (itemsConIdAnadido.length > 0) {
+            itemsConIdAnadido.forEach((itemConId) => {
+              // itemConId.impuestos debe ser ItemLevelTax[] según ReservaForm
+              if (itemConId.impuestos && itemConId.impuestos.length > 0) {
+                itemConId.impuestos.forEach((tax) => {
+                  taxesDataParaDb.push({
+                    id_item: itemConId.id_item,
+                    base: tax.base,
+                    total: tax.total,
+                    porcentaje: tax.rate ?? 0,
+                    monto: tax.monto ?? 0,
+                    name: tax.name,
+                    tipo_impuestos: tax.tipo_impuesto,
+                  });
+                });
+              }
+            });
+
+            if (taxesDataParaDb.length > 0) {
+              const query_impuestos_items = `
+                INSERT INTO impuestos_items (id_item, base, total, porcentaje, monto, nombre_impuesto, tipo_impuesto)
+                VALUES ${taxesDataParaDb
+                  .map(() => "(?, ?, ?, ?, ?, ?, ?)")
+                  .join(", ")};
+              `;
+              const params_impuestos_items = taxesDataParaDb.flatMap((t) => [
+                t.id_item,
+                t.base,
+                t.total,
+                t.porcentaje,
+                t.monto,
+                t.name,
+                t.tipo_impuestos,
+              ]);
+              await connection.execute(
+                query_impuestos_items,
+                params_impuestos_items
+              );
+            }
+          }
+
+          // 4. Lógica Específica de Pago (Contado vs Crédito)
+          const query_pago_contado = `SELECT id_pago FROM pagos WHERE id_servicio = ? LIMIT 1;`;
+          const [rowsContado] = await connection.execute(query_pago_contado, [
+            solicitud.id_servicio,
+          ]);
+
+          if (rowsContado.length > 0) {
+            // --- Bloque de PAGO DE CONTADO ---
+            const id_pago = rowsContado[0].id_pago;
+            console.log("Procesando pago de contado:", id_pago);
+
+            if (itemsConIdAnadido.length > 0) {
+              const query_items_pagos = `
+                INSERT INTO items_pagos (id_item, id_pago, monto)
+                VALUES ${itemsConIdAnadido.map(() => "(?, ?, ?)").join(",")};
+              `;
+              // El monto asociado al pago del item suele ser el total de la venta del item
+              const params_items_pagos = itemsConIdAnadido.flatMap(
+                (itemConId) => [
+                  itemConId.id_item,
+                  id_pago,
+                  itemConId.venta.total.toFixed(2),
+                ]
+              );
+              await connection.execute(query_items_pagos, params_items_pagos);
+            }
+          } else {
+            // --- Bloque de PAGO A CRÉDITO (o no se encontró pago de contado) ---
+            const query_pago_credito = `SELECT id_credito FROM pagos_credito WHERE id_servicio = ? LIMIT 1;`;
+            const [rowsCredito] = await connection.execute(query_pago_credito, [
+              solicitud.id_servicio,
+            ]);
+
+            if (rowsCredito.length === 0) {
+              console.error(
+                "Error: No se encontró un pago (contado o crédito) para el servicio",
+                solicitud.id_servicio
+              );
+              throw new Error(
+                `No se encontró un pago para el servicio ${solicitud.id_servicio}`
+              );
+            }
+            const id_credito = rowsCredito[0].id_credito;
+            console.log("Procesando pago a crédito:", id_credito);
+            // La lógica original no asociaba el id_credito directamente a los items en una tabla similar a items_pagos.
+            // Si necesitas hacerlo, aquí sería el lugar.
+          }
+
+          // 5. Actualizar Solicitud (común para ambos casos)
+          await connection.execute(
+            `UPDATE solicitudes SET status = "complete" WHERE id_solicitud = ?;`,
+            [solicitud.id_solicitud] // Asegúrate que solicitud.id_solicitud está disponible
+          );
+
+          return {
+            message: "Reserva procesada exitosamente",
+            id_booking: id_booking,
+            // puedes añadir más datos al objeto de respuesta si es necesario
+          };
+        } catch (errorInTransaction) {
+          console.error("Error dentro de la transacción:", errorInTransaction);
+          throw errorInTransaction; // Es crucial para que executeTransaction pueda hacer rollback
+        }
+      }
+    );
+
+    return response; // Esto será lo que devuelva el callback de executeTransaction
+  } catch (error) {
+    console.error("Error al insertar reserva:", error);
     throw error; // Lanza el error para que puedas manejarlo donde llames la función
   }
 };
