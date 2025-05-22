@@ -109,7 +109,7 @@ const createSolicitudes = async (body) => {
   }
 };
 
-const getSolicitudes = async (filters = {}) => {
+const getSolicitudes = async (filters = { filterType: "Creacion" }) => {
   try {
     let conditions = [];
     let values = [];

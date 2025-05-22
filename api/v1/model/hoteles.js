@@ -18,6 +18,7 @@ const getHotelesWithCuartos = async () => {
     tc.id_tipo_cuarto,
     tc.nombre AS nombre_tipo_cuarto,
     t.id_tarifa,
+    t.costo,
     t.precio,
     t.id_agente
   FROM tarifas t
@@ -36,6 +37,7 @@ const getHotelesWithCuartos = async () => {
         nombre_tipo_cuarto: item.nombre_tipo_cuarto,
         id_tarifa: item.id_tarifa,
         precio: item.precio,
+        costo: item.costo,
         id_agente: item.id_agente,
       };
 
