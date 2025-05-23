@@ -222,6 +222,7 @@ SELECT
     so.id_usuario_generador,
     so.nombre_viajero,
 	b.id_booking,
+  b.costo_total,
   h.id_hospedaje,
 	h.codigo_reservacion_hotel,  
 	p.id_pago,
