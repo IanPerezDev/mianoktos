@@ -249,7 +249,7 @@ LEFT JOIN viajeros_con_empresas_con_agentes as vw ON vw.id_viajero = so.id_viaje
 LEFT JOIN vw_details_agente as vwa ON vw.id_agente = vwa.id_agente 
 LEFT JOIN vw_agente_primer_empresa as vwae ON vwae.id_agente = vw.id_agente
 ${whereClause}
-GROUP BY so.id_solicitud
+${/*GROUP BY so.id_solicitud*/ ""}
 ORDER BY s.created_at DESC;`;
 
     let response = await executeQuery(query, values);
