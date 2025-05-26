@@ -224,6 +224,7 @@ SELECT
 	b.id_booking,
   b.costo_total,
   h.id_hospedaje,
+  h.comments,
 	h.codigo_reservacion_hotel,  
 	p.id_pago,
     p.metodo_de_pago,

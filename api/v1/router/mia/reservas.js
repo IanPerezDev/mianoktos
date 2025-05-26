@@ -4,6 +4,11 @@ const middleware = require("../../middleware/validateParams");
 
 const requiredParamsToCreate = [];
 
+router.put(
+  "/",
+  middleware.validateParams(requiredParamsToCreate),
+  controller.updateReserva
+);
 router.post(
   "/operaciones",
   middleware.validateParams(requiredParamsToCreate),

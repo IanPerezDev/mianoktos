@@ -14,6 +14,19 @@ const create = async (req, res) => {
   }
 };
 
+const updateReserva = async (req, res) => {
+  try {
+    let response = await model.editarReserva(req.body, req.query.id);
+    res
+      .status(201)
+      .json({ message: "Solicitud created successfully", data: response });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", details: error.message });
+  }
+};
 const createFromOperaciones = async (req, res) => {
   try {
     let response = await model.createReservaFromOperaciones(req.body);
@@ -80,4 +93,5 @@ module.exports = {
   readAll,
   createFromOperaciones,
   readOnlyById,
+  updateReserva,
 };
