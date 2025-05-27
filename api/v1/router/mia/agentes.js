@@ -31,7 +31,9 @@ select
   vw.*,
 	CONCAT_WS(' ', vw.primer_nombre, vw.segundo_nombre, vw.apellido_paterno, vw.apellido_materno) AS nombre_agente_completo,
   a.tiene_credito_consolidado,
-  a.monto_credito
+  a.monto_credito,
+  a.notas,
+  a.vendedor
 FROM agentes as a
 JOIN vw_details_agente as vw ON vw.id_agente = a.id_agente;
 `;
