@@ -33,9 +33,11 @@ select
   a.tiene_credito_consolidado,
   a.monto_credito,
   a.notas,
-  a.vendedor
+  a.vendedor,
+  a.created_at
 FROM agentes as a
-JOIN vw_details_agente as vw ON vw.id_agente = a.id_agente;
+JOIN vw_details_agente as vw ON vw.id_agente = a.id_agente
+order by a.created_at desc;
 `;
     const response = await executeQuery(query);
     res.status(200).json(response);
