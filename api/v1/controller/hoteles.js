@@ -86,6 +86,8 @@ const AgregarHotel = async (req, res) => {
       const num = Number(value);
       return isNaN(num) ? null : num;
     };
+    let otros_impuestos2= otros_impuestos== null? 0 : otros_impuestos;
+    let otros_impuestos_porcentaje2= otros_impuestos_porcentaje== null? 0 : otros_impuestos_porcentaje;
     //si el pais es null se asigna Mexico
     const pais2= pais === null ? "MEXICO" : pais;
     // Procesar tarifas preferenciales - VERSIÓN CORREGIDA
@@ -193,12 +195,12 @@ const AgregarHotel = async (req, res) => {
       activo,
       safeNumber(iva),
       safeNumber(ish),
-      safeNumber(otros_impuestos),
+      safeNumber(otros_impuestos2),
       comentario_pago,
       mascotas,
       salones,
       comentario_vigencia,
-      otros_impuestos_porcentaje,
+      safeNumber(otros_impuestos_porcentaje2),
       // Datos de desayuno sencilla
       sencilla.incluye === true,
       sencilla.tipo_desayuno || null,
