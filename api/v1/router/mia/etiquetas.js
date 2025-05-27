@@ -6,5 +6,6 @@ const requiredParamsToCreate = ["nombre","color","tipo_tag"]
 router.post("/", middleware.validateParams(requiredParamsToCreate), controller.create)
 router.get("/", controller.read)
 router.get("/get-tags-agente", controller.readTagsClient)
+router.post("/solicitud-etiqueta", controller.createSolicitudEtiqueta)
 
 module.exports = router

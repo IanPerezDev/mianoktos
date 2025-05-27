@@ -16,7 +16,7 @@ const createTag = async (data) => {
 
 const getTags = async () => {
   try {
-    
+
   } catch (error) {
     console.error("Error in getSolicitudes:", error);
     throw error;
@@ -34,9 +34,35 @@ const getTagsClient = async (id_agente) => {
   }
 };
 
+const createSolicitudEtiqueta = async (data) => {
+  try {
+    const id_solicitud_etiqueta = `ste-${uuidv4()}`; // ID único para la relación
+
+    const query = `
+    INSERT INTO solicitud_etiqueta (
+      id_solicitud_etiqueta, id_solicitud, id_etiqueta
+    ) VALUES (?, ?, ?);
+  `;
+
+    let params = [
+      id_solicitud_etiqueta,
+      data.id_solicitud,
+      data.id_etiqueta,
+    ];
+    let response = await executeQuery(query, params);
+
+    return {
+      success: true
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 module.exports = {
   createTag,
   getTags,
   getTagsClient,
+  createSolicitudEtiqueta,
 };
