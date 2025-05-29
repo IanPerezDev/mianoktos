@@ -77,7 +77,9 @@ const AgregarHotel = async (req, res) => {
       salones,
       comentario_vigencia,
       otros_impuestos_porcentaje,
-      pais
+      pais,
+      score_operaciones,
+      score_sistemas
     } = req.body;
     const { preferenciales } = tarifas;
     // Función para asegurar valores numéricos
@@ -88,6 +90,8 @@ const AgregarHotel = async (req, res) => {
     };
     let otros_impuestos2= otros_impuestos== null? 0 : otros_impuestos;
     let otros_impuestos_porcentaje2= otros_impuestos_porcentaje== null? 0 : otros_impuestos_porcentaje;
+    let score_operaciones2= score_operaciones== null? 0 : score_operaciones;
+    let score_sistemas2= score_sistemas== null? 0 : score_sistemas;
     //si el pais es null se asigna Mexico
     const pais2= pais === null ? "MEXICO" : pais;
     // Procesar tarifas preferenciales - VERSIÓN CORREGIDA
@@ -223,7 +227,9 @@ const AgregarHotel = async (req, res) => {
       // Notas y sepomex
       Comentarios || "",
       safeNumber(id_sepomex),
-      pais2
+      pais2,
+      safeNumber(score_operaciones2),
+      safeNumber(score_sistemas2)
     ], false);
     
     res.status(200).json({ 
@@ -301,11 +307,15 @@ const consultaHoteles= async (req,res) => {
       mascotas,
       salones,
       comentario_vigencia,
-      pais
+      pais,
+      score_operaciones,
+      score_sistemas
     } = req.body;
 
     console.log("Datos recibidos:", req.body);
     const pais2= pais === null ? "MEXICO" : pais;
+    let score_operaciones2= score_operaciones== null? 0 : score_operaciones;
+    let score_sistemas2= score_sistemas== null? 0 : score_sistemas;
     try {
       const hotel_actualizado = await executeSP("sp_actualizar_hotel2", [
         id_hotel,
@@ -350,7 +360,9 @@ const consultaHoteles= async (req,res) => {
         mascotas,
         salones,
         comentario_vigencia,
-        pais2
+        pais2,
+        score_operaciones2,
+        score_sistemas2
       ], false);
 
       res.status(200).json({
