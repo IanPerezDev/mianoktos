@@ -29,7 +29,7 @@ const updateReserva = async (req, res) => {
 };
 const createFromOperaciones = async (req, res) => {
   try {
-    let response = await model.createReservaFromOperaciones(req.body);
+    let response = await model.insertarReservaOperaciones(req.body);
     res
       .status(201)
       .json({ message: "Solicitud created successfully", data: response });
