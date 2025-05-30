@@ -1,11 +1,16 @@
+
 const {executeSP, executeQuery} = require("../../../config/db");
 const { v4: uuidv4 } = require("uuid");
-const model = require("../model/hoteles")
+
+const db = require('../model/sequelize');
+const { VwHotelTarifaCompleta, Sequelize } = db;
+
+const { Op } = Sequelize;
 
 
 const AgregarHotel = async (req, res) => {
   console.log('Llegó al endpoint de agregar hotel');
-  console.log('Body recibido:', JSON.stringify(req.body, null, 2)); // Log completo del body
+  console.log('Body recibido:', JSON.stringify(req.body, null, 2)); 
   
   try {
     // Extraer datos del cuerpo de la solicitud con valores por defecto
@@ -723,44 +728,81 @@ const filtroAvanzado = async (req, res) => {
     pais
   } = req.body;
 
-  // Utilidad para convertir a mayúsculas si es string
-  const toUpperOrNull = (val) =>
-    typeof val === "string" ? val.toUpperCase() : val ?? null;
+  const toUpperOrNull = val => (typeof val === 'string' ? val.toUpperCase() : val ?? null);
 
   try {
-    const result = await executeSP("filtro_completo", [
-      toUpperOrNull(desayuno),
-      activo ?? null,
-      toUpperOrNull(acepta_mascotas),
-      toUpperOrNull(correo),
-      doble_costo_max ?? null,
-      doble_costo_min ?? null,
-      doble_precio_max ?? null,
-      doble_precio_min ?? null,
-      toUpperOrNull(estado),
-      toUpperOrNull(hay_convenio),
-      toUpperOrNull(nombre),
-      toUpperOrNull(rfc),
-      toUpperOrNull(razon_social),
-      sencilla_costo_max ?? null,
-      sencilla_costo_min ?? null,
-      sencilla_precio_max ?? null,
-      sencilla_precio_min ?? null,
-      toUpperOrNull(tipo_hospedaje),
-      toUpperOrNull(tipo_negociacion),
-      toUpperOrNull(tipo_pago),
-      toUpperOrNull(tiene_transportacion),
-      toUpperOrNull(pais)
-    ], true);
+    const where = {};
 
-    if (!result) {
-      res.status(404).json({ message: "No se encontraron hoteles con esa búsqueda" });
-    } else {
-      res.status(200).json({ message: "Hoteles recuperados con éxito", data: result });
+    if (desayuno) where.desayuno_sencilla = toUpperOrNull(desayuno);
+    if (activo !== undefined) where.Activo = activo;
+    if (acepta_mascotas) where.acepta_mascotas = toUpperOrNull(acepta_mascotas);
+    if (correo) where.correo = toUpperOrNull(correo);
+    if (estado) where.Estado = toUpperOrNull(estado);
+    if (hay_convenio) where.hay_convenio = toUpperOrNull(hay_convenio);
+    if (tipo_hospedaje) where.tipo_hospedaje = toUpperOrNull(tipo_hospedaje);
+    if (tipo_pago) where.tipo_pago = toUpperOrNull(tipo_pago);
+    if (tiene_transportacion) where.tiene_transportacion = toUpperOrNull(tiene_transportacion);
+    if (pais) where.pais = toUpperOrNull(pais);
+
+    if (nombre) {
+      where.nombre = { [Op.like]: `%${toUpperOrNull(nombre)}%` };
     }
+
+    if (rfc) {
+      where.rfc = { [Op.like]: `%${toUpperOrNull(rfc)}%` };
+    }
+
+    if (razon_social) {
+      where.razon_social = { [Op.like]: `%${toUpperOrNull(razon_social)}%` };
+    }
+
+    if (tipo_negociacion) {
+      where.tipo_negociacion = { [Op.like]: `%${toUpperOrNull(tipo_negociacion)}%` };
+    }
+
+    if (doble_costo_max != null || doble_costo_min != null) {
+      where.costo_doble = {};
+      if (doble_costo_min != null) where.costo_doble[Op.gte] = doble_costo_min;
+      if (doble_costo_max != null) where.costo_doble[Op.lte] = doble_costo_max;
+    }
+
+    if (doble_precio_max != null || doble_precio_min != null) {
+      where.precio_doble = {};
+      if (doble_precio_min != null) where.precio_doble[Op.gte] = doble_precio_min;
+      if (doble_precio_max != null) where.precio_doble[Op.lte] = doble_precio_max;
+    }
+
+    if (sencilla_costo_max != null || sencilla_costo_min != null) {
+      where.costo_sencilla = {};
+      if (sencilla_costo_min != null) where.costo_sencilla[Op.gte] = sencilla_costo_min;
+      if (sencilla_costo_max != null) where.costo_sencilla[Op.lte] = sencilla_costo_max;
+    }
+
+    if (sencilla_precio_max != null || sencilla_precio_min != null) {
+      where.precio_sencilla = {};
+      if (sencilla_precio_min != null) where.precio_sencilla[Op.gte] = sencilla_precio_min;
+      if (sencilla_precio_max != null) where.precio_sencilla[Op.lte] = sencilla_precio_max;
+    }
+
+    const hoteles = await VwHotelTarifaCompleta.findAll({
+      where,
+      order: [['nombre', 'ASC']]
+    });
+
+    if (!hoteles.length) {
+      return res.status(404).json({
+        message: 'No se encontraron hoteles con esa búsqueda'
+      });
+    }
+
+    res.status(200).json({
+      message: 'Hoteles recuperados con éxito',
+      data: hoteles
+    });
+
   } catch (error) {
-    console.error("Error al ejecutar filtro_completo:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    console.error('Error al realizar filtro avanzado:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
 

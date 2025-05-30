@@ -1,17 +1,17 @@
-const { executeTransaction, executeQuery } = require("../../../config/db");
+// const { executeTransaction, executeQuery } = require("../../../config/db");
 
 
-const getImpuestos = async () => {
-  try {
-    let query = `SELECT id_impuesto, name, ROUND(rate, 2) as rate FROM impuestos`;
-    let response = await executeQuery(query);
-    return response;
+// const getImpuestos = async () => {
+//   try {
+//     let query = `SELECT id_impuesto, name, ROUND(rate, 2) as rate FROM impuestos`;
+//     let response = await executeQuery(query);
+//     return response;
 
-  } catch (error) {
-    throw error;
-  }
-}
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 
-module.exports = {
-  getImpuestos
-}
+// module.exports = {
+//   getImpuestos
+// }
