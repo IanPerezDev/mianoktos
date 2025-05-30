@@ -1,6 +1,8 @@
 const {executeSP, executeQuery} = require("../../../config/db");
 const { v4: uuidv4 } = require("uuid");
 const model = require("../model/hoteles")
+const { filtroHotelSchema } = require("../utils/hotelValidators");
+const { filtroHoteles } = require("../model/hoteles");
 
 
 const AgregarHotel = async (req, res) => {
@@ -403,65 +405,7 @@ const consultaHoteles= async (req,res) => {
       res.status(500).json({message: "error interno del servidor", error:error});
     }
   }
-  const consultaPrecioSencilla = async (req, res) => {
-    // Tomamos el id_hotel desde params o query
-    const id_hotel = req.params.id_hotel || req.query.id_hotel;
   
-    //console.log("ID hotel recibido:", id_hotel);
-  
-    if (!id_hotel) {
-      return res.status(400).json({ message: "Falta el parámetro id_hotel" });
-    }
-  
-    try {
-      const result = await executeSP("get_precio_habitacion_sencilla", [id_hotel],false);
-      //console.log(result)
-      const precio_sencilla = result?.[0]?.precio_sencilla  
-      if (precio_sencilla === undefined) {
-        return res
-          .status(404)
-          .json({ message: "No se encontró el precio de la habitación sencilla" });
-      }
-  
-      res.status(200).json({ message: "Precio encontrado", precio: precio_sencilla });
-    } catch (error) {
-      console.error("Error ejecutando SP:", error);
-      res.status(500).json({ message: "Error interno del servidor" });
-    }
-  };
-  
-  const consultaPrecioDoble = async (req, res) => {
-    // Tomamos el id_hotel desde params o query
-    const id_hotel = req.params.id_hotel || req.query.id_hotel;
-  
-    //console.log("ID hotel recibido:", id_hotel);
-  
-    if (!id_hotel) {
-      return res.status(400).json({ message: "Falta el parámetro id_hotel" });
-    }
-  
-    try {
-      const result = await executeSP("get_precio_habitacion_doble", [[id_hotel]],false);
-  
-      // Si el resultado viene como: [ { precio_doble: '4200.00' } ]
-      const precio_doble = result?.[0]?.precio_doble;
-  
-      if (precio_doble == null) {
-        return res
-          .status(404)
-          .json({ message: "No se encontró el precio de la habitación doble" });
-      }
-  
-      res.status(200).json({
-        message: "Precio encontrado",
-        precio: parseFloat(precio_doble),
-      });
-    } catch (error) {
-      console.error("Error ejecutando SP:", error);
-      res.status(500).json({ message: "Error interno del servidor" });
-    }
-  };
-
   const filtra_hoteles = async (req,res) => {
     const opc = req.params;
     if(opc==1){
@@ -698,77 +642,84 @@ const eliminarLogicaTarifa = async (req, res) => {
 };
 
 const filtroAvanzado = async (req, res) => {
-  const {
-    desayuno,
-    activo,
-    acepta_mascotas,
-    correo,
-    doble_costo_max,
-    doble_costo_min,
-    doble_precio_max,
-    doble_precio_min,
-    estado,
-    hay_convenio,
-    nombre,
-    rfc,
-    razon_social,
-    sencilla_costo_max,
-    sencilla_costo_min,
-    sencilla_precio_max,
-    sencilla_precio_min,
-    tipo_hospedaje,
-    tipo_negociacion,
-    tipo_pago,
-    tiene_transportacion,
-    pais
-  } = req.body;
+  const { logStep, requestId, trace } = req.context;
 
-  // Utilidad para convertir a mayúsculas si es string
-  const toUpperOrNull = (val) =>
+  logStep("Inicia validación del esquema de filtros");
+
+  const { error, value } = filtroHotelSchema.validate(req.body);
+  if (error) {
+    logStep("Error de validación del payload");
+    return res.status(400).json({
+      success: false,
+      message: "Parámetros inválidos",
+      details: error.details.map(e => e.message),
+    });
+  }
+
+  logStep("Transformando parámetros a formato compatible con SP");
+
+  const toUpperOrNull = val =>
     typeof val === "string" ? val.toUpperCase() : val ?? null;
 
-  try {
-    const result = await executeSP("filtro_completo", [
-      toUpperOrNull(desayuno),
-      activo ?? null,
-      toUpperOrNull(acepta_mascotas),
-      toUpperOrNull(correo),
-      doble_costo_max ?? null,
-      doble_costo_min ?? null,
-      doble_precio_max ?? null,
-      doble_precio_min ?? null,
-      toUpperOrNull(estado),
-      toUpperOrNull(hay_convenio),
-      toUpperOrNull(nombre),
-      toUpperOrNull(rfc),
-      toUpperOrNull(razon_social),
-      sencilla_costo_max ?? null,
-      sencilla_costo_min ?? null,
-      sencilla_precio_max ?? null,
-      sencilla_precio_min ?? null,
-      toUpperOrNull(tipo_hospedaje),
-      toUpperOrNull(tipo_negociacion),
-      toUpperOrNull(tipo_pago),
-      toUpperOrNull(tiene_transportacion),
-      toUpperOrNull(pais)
-    ], true);
+  const params = [
+    toUpperOrNull(value.desayuno),
+    value.activo ?? null,
+    toUpperOrNull(value.acepta_mascotas),
+    toUpperOrNull(value.correo),
+    value.doble_costo_max ?? null,
+    value.doble_costo_min ?? null,
+    value.doble_precio_max ?? null,
+    value.doble_precio_min ?? null,
+    toUpperOrNull(value.estado),
+    toUpperOrNull(value.hay_convenio),
+    toUpperOrNull(value.nombre),
+    toUpperOrNull(value.rfc),
+    toUpperOrNull(value.razon_social),
+    value.sencilla_costo_max ?? null,
+    value.sencilla_costo_min ?? null,
+    value.sencilla_precio_max ?? null,
+    value.sencilla_precio_min ?? null,
+    toUpperOrNull(value.tipo_hospedaje),
+    toUpperOrNull(value.tipo_negociacion),
+    toUpperOrNull(value.tipo_pago),
+    toUpperOrNull(value.tiene_transportacion),
+    toUpperOrNull(value.pais)
+  ];
 
-    if (!result) {
-      res.status(404).json({ message: "No se encontraron hoteles con esa búsqueda" });
-    } else {
-      res.status(200).json({ message: "Hoteles recuperados con éxito", data: result });
+  try {
+    logStep("Ejecutando SP: filtro_completo");
+    const result = await filtroHoteles(params);
+    console.log("Resultado del SP:");
+   if (!result?.data?.[0] || result.data[0].length === 0) {
+      logStep("SP ejecutado, sin resultados");
+      return res.status(404).json({
+        success: false,
+        message: "No se encontraron hoteles con esa búsqueda"
+      });
     }
-  } catch (error) {
-    console.error("Error al ejecutar filtro_completo:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+
+    logStep("SP ejecutado con éxito, devolviendo resultados");
+    res.status(200).json({ success: true, data: result });
+
+  } catch (err) {
+    logStep("Error en ejecución del SP");
+    console.error(`[${requestId}] Trace de error:\n` + trace.join("\n"));
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+      error: process.env.NODE_ENV === "development" ? err.message : undefined
+    });
   }
 };
+
 
 
 module.exports = {
   readGroupByHotel,
   AgregarHotel,consultaHoteles,actualizaHotel,
-    eliminaHotelLogico,consultaPrecioSencilla,consultaPrecioDoble,filtra_hoteles,getTarifasByIdHotel,
+    eliminaHotelLogico,filtra_hoteles,getTarifasByIdHotel,
     paginacion,BuscaHotelesPorTermino,get_hotel_tarifas_by_nombre,
   readHotelesWithTarifa,actualizarTarifa,eliminarLogicaTarifa,filtroAvanzado
 

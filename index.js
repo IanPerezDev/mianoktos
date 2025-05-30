@@ -1,9 +1,12 @@
 const { checkApiKey } = require("./middleware/auth")
 const v1Router = require("./api/v1/router/general")
 const express = require('express');
+const morgan = require("morgan");
 const app = express();
 const PORT = process.env.PORT || 3001;
-const cors = require("cors")
+const cors = require("cors");
+const errorHandler = require("./api/v1/middleware/errorHandler");
+const requestContext = require("./api/v1/middleware/requestContext,js");
 
 //Control de CORS
 const corsOptions = {
@@ -23,6 +26,9 @@ app.use((req, res, next) => {
   res.set('Expires', '0');              // Establece que la fecha de expiración ya pasó
   next(); // Pasa al siguiente middleware o ruta
 });
+app.use(requestContext)
+app.use(errorHandler)
+app.use(morgan("dev"));
 
 //Manejo de rutas
 app.use("/v1", checkApiKey, (req, res, next) => {

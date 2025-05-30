@@ -1,4 +1,4 @@
-const { executeQuery, executeTransaction } = require("../../../config/db");
+const { executeQuery, executeTransaction,executeSP } = require("../../../config/db");
 
 const getHotelesWithCuartos = async () => {
   try {
@@ -87,7 +87,16 @@ const getHotelesWithTarifas = async () => {
   }
 };
 
+
+const filtroHoteles = async (params) => {
+  return await executeSP("filtro_completo", params, true);
+};
+
+
+
+
 module.exports = {
   getHotelesWithCuartos,
   getHotelesWithTarifas,
+  filtroHoteles
 };
