@@ -294,7 +294,27 @@ p.monto_a_credito,
 fp.id_factura,
 vw.primer_nombre,
 vw.apellido_paterno,
-a.nombre
+a.nombre,
+  (
+    SELECT JSON_ARRAYAGG(
+      JSON_OBJECT(
+        'id_item', i.id_item,
+        'fecha_uso', i.fecha_uso,
+        'total', i.total,
+        'subtotal', i.subtotal,
+        'impuestos', i.impuestos,
+        'costo_total', i.costo_total,
+        'costo_subtotal', i.costo_subtotal,
+        'costo_impuestos', i.costo_impuestos,
+        'saldo', i.saldo,
+        'is_facturado', i.is_facturado,
+        'id_factura', i.id_factura
+      )
+    )
+    FROM items i
+    WHERE i.id_hospedaje = h.id_hospedaje
+    ORDER BY i.fecha_uso
+  ) AS items
 from solicitudes as so
 LEFT JOIN servicios as s ON so.id_servicio = s.id_servicio
 LEFT JOIN bookings as b ON so.id_solicitud = b.id_solicitud
@@ -309,7 +329,6 @@ ORDER BY s.created_at DESC;`;
 
     // Ejecutar el procedimiento almacenado
     const response = await executeQuery(query);
-
     return response; // Retorna el resultado de la ejecución
   } catch (error) {
     throw error; // Lanza el error para que puedas manejarlo donde llames la función

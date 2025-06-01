@@ -490,7 +490,7 @@ SELECT
     FROM pagos p
     JOIN facturas_pagos fp ON p.id_pago = fp.id_pago
     JOIN facturas f ON fp.id_factura = f.id_factura
-    JOIN empresas e ON f.id_empresa = e.id_empresa
+    LEFT JOIN empresas e ON f.id_empresa = e.id_empresa
     WHERE p.id_servicio = solicitudes.id_servicio
   ) AS facturas
 

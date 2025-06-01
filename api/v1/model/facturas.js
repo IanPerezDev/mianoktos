@@ -84,9 +84,10 @@ const createFactura = async ({ cfdi, info_user }) => {
 const createFacturaCombinada = async ({ cfdi, info_user }) => {
   let connection;
   try {
-    const { id_solicitud, id_user } = info_user;
+    const { id_solicitud, id_user, id_items } = info_user;
     const solicitudesArray = Array.isArray(id_solicitud) ? id_solicitud : [id_solicitud];
-
+    const itemsArray = Array.isArray(id_items) ? id_items : [id_items];
+    // Calcular totales
     const reduce = cfdi.Items.reduce((acc, item) => {
       acc.total += parseFloat(item.Total);
       acc.subtotal += parseFloat(item.Subtotal);
@@ -97,17 +98,29 @@ const createFacturaCombinada = async ({ cfdi, info_user }) => {
     }, { total: 0, subtotal: 0, impuestos: 0 });
 
     const response = await runTransaction(async (conn) => {
-      connection = conn; // Guardamos la conexión para manejar errores
-      console.log(cfdi)
+      connection = conn;
+
+      // 1. Crear factura en Facturama
       const response_factura = await crearCfdi(cfdi);
+
+      // 2. Generar ID de factura
       const id_factura = `fac-${uuidv4()}`;
       const { total, subtotal, impuestos } = reduce;
 
-      // 1. Insertar la factura principal
-      const query = `
-        INSERT INTO facturas (id_factura, fecha_emision, estado, usuario_creador, total, subtotal, impuestos, id_facturama)
-        VALUES (?,?,?,?,?,?,?,?);`;
-      await connection.execute(query, [
+      // 3. Insertar factura principal
+      const insertFacturaQuery = `
+        INSERT INTO facturas (
+          id_factura, 
+          fecha_emision, 
+          estado, 
+          usuario_creador, 
+          total, 
+          subtotal, 
+          impuestos, 
+          id_facturama
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`;
+
+      await connection.execute(insertFacturaQuery, [
         id_factura,
         new Date(),
         "Confirmada",
@@ -118,47 +131,63 @@ const createFacturaCombinada = async ({ cfdi, info_user }) => {
         response_factura.Id
       ]);
 
-      // 2. Actualizar los items para todas las solicitudes
-      await Promise.all(solicitudesArray.map(async (solicitud) => {
-        const query2 = `
-          UPDATE items i
-            JOIN hospedajes h ON i.id_hospedaje = h.id_hospedaje
-            JOIN bookings b ON h.id_booking = b.id_booking
-          SET i.id_factura = ?
-          WHERE b.id_solicitud = ?;`;
-        return connection.execute(query2, [id_factura, solicitud]);
-      }));
+      // 4. Actualizar SOLO los items seleccionados
+      await connection.execute(
+        `UPDATE items SET id_factura = ? WHERE id_item IN (${itemsArray.map(() => '?').join(',')})`,
+        [id_factura, ...itemsArray]
+      );
 
-      // 3. Insertar en facturas_pagos para todas las solicitudes
-      await Promise.all(solicitudesArray.map(async (solicitud) => {
-        const query3 = `
-          INSERT INTO facturas_pagos (id_factura, monto_pago, id_pago)
-          SELECT ?, ?, p.id_pago
-            FROM solicitudes s
-              JOIN servicios se ON s.id_servicio = se.id_servicio
-              JOIN pagos p ON se.id_servicio = p.id_servicio
-            WHERE s.id_solicitud = ?;`;
-        return connection.execute(query3, [id_factura, total, solicitud]);
-      }));
+      // 5. Insertar registros en facturas_pagos
+      await connection.execute(
+        `
+    INSERT INTO facturas_pagos (
+      id_factura, 
+      monto_pago, 
+      id_pago
+    )
+    SELECT 
+      ? AS id_factura,
+      ? AS monto_pago,
+      p.id_pago
+    FROM 
+      solicitudes s
+      JOIN servicios se ON s.id_servicio = se.id_servicio
+      JOIN pagos p ON se.id_servicio = p.id_servicio
+    WHERE 
+      s.id_solicitud IN (${solicitudesArray.map(() => '?').join(',')})
+      AND p.id_pago IS NOT NULL
+  `,
+        [id_factura, total, ...solicitudesArray]
+      );
 
-      return response_factura;
+      return {
+        id_factura,
+        ...response_factura
+      };
     });
 
     return {
       success: true,
-      ...response
+      data: response
     };
   } catch (error) {
     console.error('Error en createFacturaCombinada:', error);
-    
-    // Mejor manejo del error para el cliente
-    const errorResponse = {
+
+    // Rollback manual si es necesario
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch (rollbackError) {
+        console.error('Error en rollback:', rollbackError);
+      }
+    }
+
+    throw {
       error: 'Error al crear factura combinada',
-      details: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      message: error.message,
+      sqlMessage: error.sqlMessage,
+      code: error.code || 'UNKNOWN_ERROR'
     };
-    
-    throw errorResponse;
   }
 };
 
@@ -274,7 +303,27 @@ ORDER BY facturas.created_at DESC;`;
 
 const getAllFacturas = async () => {
   try {
-    const query = "SELECT * FROM vista_facturas_pagos";
+    const query = `SELECT 
+  id_factura,
+  id_facturama,
+  fecha_emision,
+  estado_factura,
+  usuario_creador,
+  total_factura,
+  subtotal_factura,
+  impuestos_factura,
+  saldo,
+  factura_created_at,
+  factura_updated_at,
+  factura_rfc,
+  metodo_de_pago,
+  nombre_agente,
+  razon_social,
+  GROUP_CONCAT(DISTINCT hotel ORDER BY hotel SEPARATOR ', ') AS hoteles
+FROM 
+  vista_facturas_pagos
+GROUP BY 
+  id_factura;`;
     const response = await executeQuery(query);
     console.log(response);
     return response;
