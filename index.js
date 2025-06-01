@@ -15,6 +15,7 @@ const corsOptions = {
     "https://mia-prueba.vercel.app",
     "https://admin-mia.vercel.app",
     "https://mia-gray.vercel.app",
+    "https://www.viajaconmia.com",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: [
